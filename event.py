@@ -106,9 +106,9 @@ class Event:
         # print(f"interaction #: {self.vertex.GetInteractionNumber()}")
     
         # print(f"{self.vertex.Particles.size()} particles at the vertex", )
-        print ("%8s%8s%6s%10s%10s" % ('pdg', 'name', 'trkId', 'mass', 'KE'))
-        print ("%8s%8s%6s%10s%10s" % ('', '', '', '[MeV]', '[MeV]'))
-        print ("%8s%8s%6s%10s%10s" % ('-'*8, '-'*8, '-'*6, '-'*10, '-'*10))
+        print(f'{"pdg":>8}{"name":>8}{"trkId":>6}{"mass":>10}{"KE":>10}')
+        print(f'{"":>8}{"":>8}{"":>6}{"[MeV]":>10}{"[MeV]":>10}')
+        print('-'*(8+8+6+10+10))
         for particle in self.vertex.Particles:
             pdg = particle.GetPDGCode()
             name = particle.GetName()
@@ -116,8 +116,8 @@ class Event:
             mom = particle.GetMomentum()
             mass = mom.M()
             KE = mom.E() - mass            
-            print ("%8d%8s%6d%10.2f%10.2f" % (pdg, name, trkId, mass, KE))
-        print ("%8s%8s%6s%10s%10s" % ('-'*8, '-'*8, '-'*6, '-'*10, '-'*10))
+            print(f'{pdg:>8d}{name:>8s}{trkId:>6d}{mass:>10.2f}{KE:>10.2f}')
+        print('-'*(8+8+6+10+10))
 
     # ------------------------
     def PrintDepo(self, i):
@@ -143,10 +143,10 @@ class Event:
 
     # ------------------------
     def PrintTracks(self, start=0, stop=-1):
-        print(f"{self.tracks.size} trajectories stored", )
-        print ("%8s%8s%6s%6s%6s%10s%10s" % ('pdg', 'name', 'trkId', 'parId', 'acId', 'KE', 'depoE'))
-        print ("%8s%8s%6s%6s%6s%10s%10s" % ('', '', '', '', '', '[MeV]', '[MeV]'))
-        print ("%8s%8s%6s%6s%6s%10s%10s" % ('-'*8, '-'*8, '-'*6, '-'*6, '-'*6, '-'*10, '-'*10))
+        # print(f"{self.tracks.size} trajectories stored", )
+        print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'depoE':>10}")
+        print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}")
+        print('-'*(8+8+6+6+6+10+10))
 
         for track in self.tracks[start:stop]:
             pdg = track.GetPDGCode()
@@ -157,10 +157,10 @@ class Event:
             mass = mom.M()
             KE = mom.E() - mass        
             ancestor = track.association['ancestor']
-            print("%8d%8s%6d%6d%6d%10.2f%10.2f" % (pdg, name, trkId, parId, ancestor, KE, track.energy['depoTotal']))
-            # print(track.energy, track.association)
-        print ("%8s%8s%6s%6s%6s%10s%10s" % ('-'*8, '-'*8, '-'*6, '-'*6, '-'*6, '-'*10, '-'*10))
-    
+            print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{track.energy['depoTotal']:>10.2f}")
+
+        print('-'*(8+8+6+6+6+10+10))
+
 
     # ------------------------
     def Next(self):
