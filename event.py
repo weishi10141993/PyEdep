@@ -1,5 +1,5 @@
 import ROOT
-from ROOT import TG4Event, TFile, TTree
+from ROOT import TG4Event, TFile, TChain
 
 import sys, os
 import numpy as np
@@ -15,12 +15,16 @@ class Event:
 
     # ------------------------
     def ReadTree(self):
-        self.rootFile = TFile(self.fileName)
-        self.simTree = self.rootFile.Get("EDepSimEvents")
-        self.genieTree = self.rootFile.Get("DetSimPassThru/gRooTracker")
+        # self.rootFile = TFile(self.fileName)
+        self.simTree = TChain("EDepSimEvents")
+        self.simTree.Add(self.fileName)
+        self.genieTree = TChain("DetSimPassThru/gRooTracker")
+        self.genieTree.Add(self.fileName)
+        # self.simTree = self.rootFile.Get("EDepSimEvents")
+        # self.genieTree = self.rootFile.Get("DetSimPassThru/gRooTracker")
 
-        self.nEntry = self.simTree.GetEntriesFast()
-        if self.nEntry != self.genieTree.GetEntriesFast():
+        self.nEntry = self.simTree.GetEntries()
+        if self.nEntry != self.genieTree.GetEntries():
             print("Edep-sim tree and GENIE tree number of entries do not match!")
             sys.exit()        
         
@@ -29,7 +33,7 @@ class Event:
     
     # ------------------------    
     def Jump(self, entryNo):
-        print('reading event ', entryNo)
+        print(f'reading event {entryNo}/{self.nEntry}')
 
         self.currentEntry = entryNo
         self.simTree.GetEntry(entryNo)
@@ -85,8 +89,8 @@ class Event:
             track.association['depoList'].append(i)
             track.energy['depoTotal'] += edep
 
-        E_tot = np.sum([depo.GetEnergyDeposit() for depo in self.depos])
-        print('total deposit energy: ', E_tot)
+        # E_tot = np.sum([depo.GetEnergyDeposit() for depo in self.depos])
+        # print('total deposit energy: ', E_tot)
 
     # ------------------------
     def FindDepoListFromTrack(self, trkId):
@@ -136,10 +140,10 @@ class Event:
         track = self.tracks[trkId]
         print(f"{track.Points.size()} points stored in track {trkId}")
         for point in track.Points:
-            momx = point.GetMomentum().X()
-            momy = point.GetMomentum().Y()
-            momz = point.GetMomentum().Z() 
-            print(f"{point.GetProcess()}, {point.GetSubprocess()}, {momx}, {momy}, {momz}")
+            x = point.GetPosition().X()
+            y = point.GetPosition().Y()
+            z = point.GetPosition().Z() 
+            print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}")
 
     # ------------------------
     def PrintTracks(self, start=0, stop=-1):
