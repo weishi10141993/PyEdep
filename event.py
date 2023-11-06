@@ -41,6 +41,16 @@ class Event:
         self.ReadVertex()
         self.ReadTracks()
         self.ReadEnergyDepo('SimEnergyDeposit')
+
+        self.info = {}
+        self.info['E_avail'] = 0
+        self.info['E_list'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
+        self.info['E_depoTotal'] = 0
+        self.info['E_depoList'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
+        self.info['vtx_xs'] = self.vertex.GetCrossSection()
+        self.info['vtx_proc'], self.info['vtx_nucl'] = self.GetReaction()
+        self.FillEnergyInfo()
+
     
     # ------------------------
     def ReadVertex(self):
@@ -50,6 +60,36 @@ class Event:
             return
 
         self.vertex = primaries[0]
+    
+    #--------------------------
+    def GetReaction(self):
+        txt_list = self.vertex.GetReaction().split(';')
+        proc = ''
+        nucl = 0
+        for x in txt_list[2:]:
+            if 'proc:' in x:
+                proc = x.replace('proc:', '').replace('Weak[','').replace('],', '')
+            elif 'N:' in x:
+                nucl = int(x.replace('N:', ''))
+        # print(proc, nucl)
+        proc_num = 0
+        if (proc.startswith('CC')): 
+            proc_num = 10
+            proc = proc.replace('CC', '')
+        elif (proc.startswith('NC')): 
+            proc_num = 20
+            proc = proc.replace('NC', '')
+        else: 
+            proc_num = 30
+        proc_dict = {
+            'QES' : 1,
+            'RES' : 2,
+            'DIS' : 3,
+            'COH' : 4,
+            'MEC' : 5,
+        }
+        proc_num += proc_dict.get(proc, 0)
+        return proc_num, nucl
 
     # ------------------------
     def ReadTracks(self):
@@ -65,8 +105,8 @@ class Event:
         for i in range(self.tracks.size):
             track = self.tracks[i]
             parId = track.GetParentId()
-            self.tracks[parId].association['children'].append(i)
             if parId == -1: continue
+            self.tracks[parId].association['children'].append(i)
             while parId != -1:
                 track.association['ancestor'] = parId
                 parId = self.tracks[parId].GetParentId()
@@ -108,7 +148,7 @@ class Event:
         print(f"vertex @: ({posx}, {posy}, {posz}) [mm]")
         print(f"reaction: {self.vertex.GetReaction()}")
         # print(f"interaction #: {self.vertex.GetInteractionNumber()}")
-    
+
         # print(f"{self.vertex.Particles.size()} particles at the vertex", )
         print(f'{"pdg":>8}{"name":>8}{"trkId":>6}{"mass":>10}{"KE":>10}')
         print(f'{"":>8}{"":>8}{"":>6}{"[MeV]":>10}{"[MeV]":>10}')
@@ -122,6 +162,60 @@ class Event:
             KE = mom.E() - mass            
             print(f'{pdg:>8d}{name:>8s}{trkId:>6d}{mass:>10.2f}{KE:>10.2f}')
         print('-'*(8+8+6+10+10))
+
+        print(f'{self.info}')
+
+    # ------------------------
+    def FillEnergyInfo(self):
+
+        for particle in self.vertex.Particles:
+            pdg = particle.GetPDGCode()
+            trkId = particle.GetTrackId()
+            depoE = self.GetEnergyDepoWithDesendents(trkId)
+            mom = particle.GetMomentum()
+            mass = mom.M()
+            KE = mom.E() - mass            
+            self.info['E_avail'] += KE
+            self.info['E_depoTotal'] += depoE
+            # fill E_list: lepton, proton, neutron, pi+-, pi0, others.
+            if (pdg in [13, -13, 11, -11]):
+                self.info['E_avail'] += mass
+                self.info['E_list'][0] += (KE + mass)
+                self.info['E_depoList'][0] += depoE
+            elif (pdg == 2212):
+                self.info['E_list'][1] += KE 
+                self.info['E_depoList'][1] += depoE
+            elif (pdg == 2112):
+                self.info['E_list'][2] += KE
+                self.info['E_depoList'][2] += depoE
+            elif (pdg in [211, -211]):
+                self.info['E_avail'] += mass
+                self.info['E_list'][3] += (KE + mass)
+                self.info['E_depoList'][3] += depoE
+            elif (pdg == 111):
+                self.info['E_avail'] += mass
+                self.info['E_list'][4] += (KE + mass)
+                self.info['E_depoList'][4] += depoE
+            else:
+                self.info['E_list'][5] += KE
+                self.info['E_depoList'][5] += depoE
+
+        # for track in self.tracks:
+        #     pdg = track.GetPDGCode()
+        #     depoE = track.energy['depoTotal']
+        #     if (pdg in [13, -13, 11, -11]):
+        #         self.info['E_depoList'][0] += depoE
+        #     elif (pdg == 2212):
+        #         self.info['E_depoList'][1] += depoE 
+        #     elif (pdg == 2112):
+        #         self.info['E_depoList'][2] += depoE
+        #     elif (pdg in [211, -211]):
+        #         self.info['E_depoList'][3] += depoE
+        #     elif (pdg == 111):
+        #         self.info['E_depoList'][4] += depoE
+        #     else:
+        #         self.info['E_depoList'][5] += depoE            
+
 
     # ------------------------
     def PrintDepo(self, i):
@@ -138,19 +232,29 @@ class Event:
     def PrintTrack(self, trkId):
         self.PrintTracks(trkId, trkId+1)
         track = self.tracks[trkId]
+        children = track.association['children']
+        print(f'children: {children}')
+        for childId in children:
+            child = self.tracks[childId]
+            name = child.GetName()
+            mom = child.GetInitialMomentum()
+            KE = mom.E() - mom.M()
+            print(f"{childId} {name}: {KE:.2f} MeV, {child.energy['depoTotal']:.2f} MeV, {child.association['children']}")
+
         print(f"{track.Points.size()} points stored in track {trkId}")
         for point in track.Points:
             x = point.GetPosition().X()
             y = point.GetPosition().Y()
             z = point.GetPosition().Z() 
-            print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}")
+            t = point.GetPosition().T() 
+            print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
 
     # ------------------------
     def PrintTracks(self, start=0, stop=-1):
         # print(f"{self.tracks.size} trajectories stored", )
-        print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'depoE':>10}")
-        print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}")
-        print('-'*(8+8+6+6+6+10+10))
+        print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'selfDepo':>10}{'allDepo':>10}")
+        print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}{'[MeV]':>10}")
+        print('-'*(8+8+6+6+6+10+10+10))
 
         for track in self.tracks[start:stop]:
             pdg = track.GetPDGCode()
@@ -161,9 +265,11 @@ class Event:
             mass = mom.M()
             KE = mom.E() - mass        
             ancestor = track.association['ancestor']
-            print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{track.energy['depoTotal']:>10.2f}")
+            selfDepo = track.energy['depoTotal']
+            allDepo = self.GetEnergyDepoWithDesendents(trkId)
+            print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{selfDepo:>10.2f}{allDepo:>10.2f}")
 
-        print('-'*(8+8+6+6+6+10+10))
+        print('-'*(8+8+6+6+6+10+10+10))
 
 
     # ------------------------
@@ -182,6 +288,27 @@ class Event:
             self.currentEntry = self.nEntry -1
         self.Jump(self.currentEntry)
 
+    #-------------------------
+    def GetEnergyDepoWithDesendents(self, trkId):
+        track = self.tracks[trkId]
+        energy = track.energy['depoTotal']
+        children = track.association['children']
+        for childId in children:
+            energy += self.GetEnergyDepoWithDesendents(childId)
+        return energy
+
+    #-------------------------
+    def GetEnergyDepoWithAncestor(self, acId):
+        energy = 0
+        for track in self.tracks:    
+            ancestor = track.association['ancestor']
+            if ancestor == acId:
+                energy += track.energy['depoTotal']        
+        return energy
+
+    #-----------------------
+    def GetFileName(self):
+        return self.simTree.GetFile().GetName()
 # ------------------------
 if __name__ == "__main__":
     event = Event(sys.argv[1])
