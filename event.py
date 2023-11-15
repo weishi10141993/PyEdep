@@ -43,15 +43,27 @@ class Event:
         self.ReadEnergyDepo('SimEnergyDeposit')
 
         self.info = {}
+        self.info['E_nu'] = 0
         self.info['E_avail'] = 0
-        self.info['E_list'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
+        self.info['E_availList'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
         self.info['E_depoTotal'] = 0
         self.info['E_depoList'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
-        self.info['vtx_xs'] = self.vertex.GetCrossSection()
-        self.info['vtx_proc'], self.info['vtx_nucl'] = self.GetReaction()
+        self.info['nu_pdg'] = 0
+        self.info['nu_xs'] = self.vertex.GetCrossSection()
+        self.info['nu_proc'], self.info['nu_nucl'] = self.GetReaction()
         self.FillEnergyInfo()
+        self.ReadGenie()
 
-    
+    # ------------------------
+    def ReadGenie(self):
+        # gRooTracker info
+        # https://github.com/GENIE-MC/Generator/blob/master/src/Apps/gNtpConv.cxx#L1837
+        # StdHepStatus: 0: initial state; 1: final state particles; others: intermediate transport
+        # following assumes the first particle is always the neutrino. 
+        self.genieTree.GetEntry(self.currentEntry)
+        self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
+        self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
+
     # ------------------------
     def ReadVertex(self):
         primaries = np.array(self.event.Primaries)
@@ -60,7 +72,7 @@ class Event:
             return
 
         self.vertex = primaries[0]
-    
+
     #--------------------------
     def GetReaction(self):
         txt_list = self.vertex.GetReaction().split(';')
@@ -142,6 +154,9 @@ class Event:
 
     # ------------------------
     def PrintVertex(self):
+        self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
+        self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
+        print(f"neutrino {self.info['nu_pdg']}: {self.info['E_nu']} MeV")
         posx = self.vertex.GetPosition().X()
         posy = self.vertex.GetPosition().Y()
         posz = self.vertex.GetPosition().Z()
@@ -175,29 +190,31 @@ class Event:
             mom = particle.GetMomentum()
             mass = mom.M()
             KE = mom.E() - mass            
-            self.info['E_avail'] += KE
             self.info['E_depoTotal'] += depoE
-            # fill E_list: lepton, proton, neutron, pi+-, pi0, others.
+            # fill E_availList: lepton, proton, neutron, pi+-, pi0, others.
             if (pdg in [13, -13, 11, -11]):
-                self.info['E_avail'] += mass
-                self.info['E_list'][0] += (KE + mass)
+                self.info['E_avail'] += (KE + mass)
+                self.info['E_availList'][0] += (KE + mass)
                 self.info['E_depoList'][0] += depoE
             elif (pdg == 2212):
-                self.info['E_list'][1] += KE 
+                self.info['E_avail'] += KE
+                self.info['E_availList'][1] += KE 
                 self.info['E_depoList'][1] += depoE
             elif (pdg == 2112):
-                self.info['E_list'][2] += KE
+                self.info['E_avail'] += KE
+                self.info['E_availList'][2] += KE
                 self.info['E_depoList'][2] += depoE
             elif (pdg in [211, -211]):
-                self.info['E_avail'] += mass
-                self.info['E_list'][3] += (KE + mass)
+                self.info['E_avail'] += (KE + mass)
+                self.info['E_availList'][3] += (KE + mass)
                 self.info['E_depoList'][3] += depoE
             elif (pdg == 111):
-                self.info['E_avail'] += mass
-                self.info['E_list'][4] += (KE + mass)
+                self.info['E_avail'] += (KE + mass)
+                self.info['E_availList'][4] += (KE + mass)
                 self.info['E_depoList'][4] += depoE
             else:
-                self.info['E_list'][5] += KE
+                self.info['E_avail'] += KE
+                self.info['E_availList'][5] += KE
                 self.info['E_depoList'][5] += depoE
 
         # for track in self.tracks:
