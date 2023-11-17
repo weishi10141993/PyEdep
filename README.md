@@ -33,7 +33,7 @@ The branches are defined as follows:
 | :------------ |:-------------| :-----|
 | nu_pdg        | int | neutrino pdg code |
 | nu_xs      | cm^2      | interaction cross section |
-| nu_proc | int | 10+X: CC; 20+X: NC; X: 1: QES; 2: RES; 3: DIS; 4: COH, 5: MEC  |
+| nu_proc | int | 10+X: CC; 20+X: NC; (X: 1: QES; 2: RES; 3: DIS; 4: COH, 5: MEC)  |
 | nu_nucl | int | interact with proton or neutron |
 | E_nu | MeV | true neutrino energy |
 | E_avail | MeV | available energy from initial state particles, including mass if meson or lepton |
