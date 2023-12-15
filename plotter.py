@@ -7,9 +7,10 @@ import numpy as np
 class Plotter:
 
     def __init__(self, event):
+        print("plotter: initilization")
         self.event = event
         self.Jump(0)
-    
+
     def Collect(self):
         self.xx = np.array([])
         self.yy = np.array([])
@@ -21,19 +22,19 @@ class Plotter:
 
         self.USER_COLORS = ['black', 'red', 'blue', 'magenta']
 
-        nColor = len(self.USER_COLORS)        
+        nColor = len(self.USER_COLORS)
         mm2m = 0.001
         mm2cm = 0.1
-        for i, track in enumerate(self.event.tracks):   
+        for i, track in enumerate(self.event.tracks):
             depoList = track.association['depoList']
             ancestor = track.association['ancestor']
             for di in depoList:
-                depo = self.event.depos[di]   
+                depo = self.event.depos[di]
                 x = (depo.GetStart().X() + depo.GetStop().X()) / 2 * mm2m
                 y = (depo.GetStart().Y() + depo.GetStop().Y()) / 2 * mm2m
                 z = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2m
                 t = (depo.GetStart().T() + depo.GetStop().T()) / 2 # ns
-                e = depo.GetEnergyDeposit() 
+                e = depo.GetEnergyDeposit()
                 l = depo.GetTrackLength() *mm2cm # most are 0.5 mm
                 self.xx = np.append(self.xx, x)
                 self.yy = np.append(self.yy, y)
@@ -50,16 +51,16 @@ class Plotter:
     def Next(self):
         self.event.Next()
         self.Collect()
-    
+
     def Prev(self):
         self.event.Prev()
         self.Collect()
-    
+
     def Draw(self, axis='yz', value='time', markerSize=0.2, cmap='jet', vmax=2000):
         # particle, timing, dE/dx
 
         mapping = {'x': self.xx, 'y': self.yy, 'z': self.zz}
-        
+
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5*2, 4), dpi=100)
         fig.suptitle(self.event.vertex.GetReaction())
         cb_ax = fig.add_axes([.94,.124,.03,.754])
@@ -76,7 +77,7 @@ class Plotter:
             plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
             cb_ax.set_xlabel('MeV/cm')
 
-        
+
         fig.colorbar(plot_12, orientation='vertical', cax=cb_ax)
         # fig.tight_layout()
 
@@ -88,13 +89,22 @@ class Plotter:
             ax.set_xlabel(f'{axis[1]} [m]')
             if ax == ax1:
                 ax.set_ylabel(f'{axis[0]} [m]')
-        
+
         xpos = -1.8
         ypos = 3.6
-        nColor = len(self.USER_COLORS)        
-        for i, particle in enumerate(self.event.vertex.Particles):   
+        nColor = len(self.USER_COLORS)
+        countnegId = 0
+        for i, particle in enumerate(self.event.vertex.Particles):
+            # Skip negative trk id: in the case of Marley events,
+            # this usually is the final nucleus before deexcitation that G4 doesn't track
+            # the kinematics are not correct either
+            trkId = particle.GetTrackId()
+            if trkId < 0:
+                # Because we skipped the trk id, need to subtract the index for the proper coloring of deposits
+                countnegId += 1
+                continue
             name = particle.GetName()
-            color = self.USER_COLORS[i % nColor]
+            color = self.USER_COLORS[(i-countnegId) % nColor]
             # pdg = particle.GetPDGCode()
             # name = particle.GetName()
             # trkId = particle.GetTrackId()
@@ -105,11 +115,19 @@ class Plotter:
             ax1.text(xpos, ypos, name, color=color)
             ypos -= 0.35
 
-        plt.show()        
+        #ax2.plot()
+        fig.savefig(self.event.plotpath + '/particle_%s_evt_%d.pdf' % (value, self.event.currentEntry) )
+        plt.clf() # important to clear figure
+        plt.close()
+        #plt.show()
 
     def hist_dqdx(self):
         plt.hist(self.ee*2, range=(0,6), bins=100)
-        plt.show()
+        plt.draw()
+        plt.savefig(self.event.plotpath + '/dE_dx_evt_%d.pdf' % self.event.currentEntry)
+        plt.clf() # important to clear figure
+        plt.close()
+        #plt.show()
 
 
     #---------------------------------------------
@@ -137,7 +155,7 @@ class Plotter:
         txtY = 0.85
         txtSize = 0.03
         # nDepo = 0
-        for i, track in enumerate(self.event.tracks):   
+        for i, track in enumerate(self.event.tracks):
             depoList = track.association['depoList']
             ancestor = track.association['ancestor']
             color = colors[ancestor % nColor]
@@ -150,9 +168,9 @@ class Plotter:
                 txt.SetTextSize(txtSize)
                 txts.append(txt)
                 txtY -= txtSize
-                
+
             for j, di in enumerate(depoList):
-                depo = self.event.depos[di]   
+                depo = self.event.depos[di]
                 x = (depo.GetStart().X() + depo.GetStop().X()) / 2 * mm2m
                 y = (depo.GetStart().Y() + depo.GetStop().Y()) / 2 * mm2m
                 z = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2m
@@ -164,17 +182,16 @@ class Plotter:
                 m.Draw()
                 markers.append(m)
                 # nDepo += 1
-        
+
         # print('depo points drawn: ', nDepo, '| total depo: ', self.event.depos.size)
 
         ROOT.gPad.Update()
         return c1
 
 if __name__ == "__main__":
-    event = Event(sys.argv[1])  
+    event = Event(sys.argv[1])
     p = Plotter(event)
     p.Next()
-    p.Draw('yz')    
+    p.Draw('yz')
     # c1 = p.DrawROOT('xz', 0.2)
-    # input('press a key to continue ...')        
-
+    # input('press a key to continue ...')
