@@ -15,10 +15,10 @@ class Writer:
     def initOutputTree(self):
         self.T_out = TTree('Sim', 'Sim') # output tree
 
-        self.nu_pdg = array('i', [0]) # 
+        self.nu_pdg = array('i', [0]) #
         self.T_out.Branch('nu_pdg', self.nu_pdg, 'nu_pdg/I')
 
-        self.nu_xs = array('f', [0]) 
+        self.nu_xs = array('f', [0])
         self.T_out.Branch('nu_xs', self.nu_xs, 'nu_xs/F')
 
         self.nu_proc = array('i', [0]) # genie process
@@ -31,10 +31,10 @@ class Writer:
         self.T_out.Branch('E_nu', self.E_nu, 'E_nu/F')
 
         self.E_avail = array('f', [0]) # energy availabe from vertex interaction (excluding energy lost inside nuclei)
-        self.T_out.Branch('E_avail', self.E_avail, 'E_avail/F')    
+        self.T_out.Branch('E_avail', self.E_avail, 'E_avail/F')
 
         self.E_availList = np.zeros((6,), dtype=np.float32) # E avail for: lepton, proton, neutron, pi+-, pi0, others.
-        self.T_out.Branch('E_availList', self.E_availList, 'E_availList[6]/F') 
+        self.T_out.Branch('E_availList', self.E_availList, 'E_availList[6]/F')
 
         self.E_depoTotal = array('f', [0]) # total energy deposit from all (charged) tracks
         self.T_out.Branch('E_depoTotal', self.E_depoTotal, 'E_depoTotal/F')
@@ -62,7 +62,6 @@ class Writer:
             self.nu_nucl[0] = self.event.info['nu_nucl']
             self.E_nu[0] = self.event.info['E_nu']
 
-            # self.E_nu[0] = self.GetEnu()
             self.E_depoTotal[0] = self.event.info['E_depoTotal']
             self.E_avail[0] = self.event.info['E_avail']
             self.E_availList[:] = self.event.info['E_availList']
@@ -72,19 +71,12 @@ class Writer:
 
         self.T_out.Write()
         # print(self.stat)
-    
-    def GetEnu(self):
-        # no need, can read from gRooTracker tree directly
-        filename = self.event.GetFileName().split('/')[-1]
-        filename = filename.split('_')[-2]
-        filename = filename.replace('GeV', '')
-        return float(filename)*1000  # to MeV
 
 if __name__ == "__main__":
     if (len(sys.argv)>2):
         outfile = sys.argv[2]
     else:
         outfile = 'output.root'
-    event = Event(sys.argv[1])  
+    event = Event(sys.argv[1])
     w = Writer(event, outfile)
     w.Write()

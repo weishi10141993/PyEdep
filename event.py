@@ -7,10 +7,16 @@ import numpy as np
 class Event:
 
     def __init__(self, fileName):
+        print("event: initilization")
         self.fileName = fileName
         self.ReadTree()
 
         self.currentEntry = 0
+        # create a folder to store plots
+        self.plotpath = "./plots"
+        if not os.path.exists( self.plotpath):
+            os.makedirs( self.plotpath)
+            print("plotpath '" + self.plotpath + "' did not exist. It has been created!")
         # self.Jump(self.currentEntry)
 
     # ------------------------
@@ -18,20 +24,30 @@ class Event:
         # self.rootFile = TFile(self.fileName)
         self.simTree = TChain("EDepSimEvents")
         self.simTree.Add(self.fileName)
-        self.genieTree = TChain("DetSimPassThru/gRooTracker")
-        self.genieTree.Add(self.fileName)
-        # self.simTree = self.rootFile.Get("EDepSimEvents")
-        # self.genieTree = self.rootFile.Get("DetSimPassThru/gRooTracker")
-
         self.nEntry = self.simTree.GetEntries()
-        if self.nEntry != self.genieTree.GetEntries():
-            print("Edep-sim tree and GENIE tree number of entries do not match!")
-            sys.exit()        
-        
+        # Only Genie has gRooTracker, Marley doesn't
+        try:
+            edep_file = TFile(self.fileName, "OPEN")
+            test = edep_file.Get("DetSimPassThru/gRooTracker")
+            if not test:
+                raise Exception("Sorry, no gRooTracker in file")
+        except:
+            # MARLEY
+            print("Skip looking for gRooTracker directory.")
+        else:
+            # Genie
+            self.genieTree = TChain("DetSimPassThru/gRooTracker")
+            self.genieTree.Add(self.fileName)
+            # self.genieTree = self.rootFile.Get("DetSimPassThru/gRooTracker")
+            self.nGenieEntry = self.genieTree.GetEntries()
+            if self.nEntry != self.nGenieEntry:
+                print("Edep-sim tree and GENIE tree number of entries do not match!")
+                sys.exit()
+
         self.event = TG4Event()
         self.simTree.SetBranchAddress("Event", self.event)
-    
-    # ------------------------    
+
+    # ------------------------
     def Jump(self, entryNo):
         print(f'reading event {entryNo}/{self.nEntry}')
 
@@ -52,17 +68,32 @@ class Event:
         self.info['nu_xs'] = self.vertex.GetCrossSection()
         self.info['nu_proc'], self.info['nu_nucl'] = self.GetReaction()
         self.FillEnergyInfo()
-        self.ReadGenie()
+        try:
+            self.ReadGenie()
+        except:
+            # MARLEY
+            print("Jump: Marley events, assert info from file name")
+            self.ReadMarley()
 
     # ------------------------
     def ReadGenie(self):
         # gRooTracker info
         # https://github.com/GENIE-MC/Generator/blob/master/src/Apps/gNtpConv.cxx#L1837
         # StdHepStatus: 0: initial state; 1: final state particles; others: intermediate transport
-        # following assumes the first particle is always the neutrino. 
+        # following assumes the first particle is always the neutrino.
         self.genieTree.GetEntry(self.currentEntry)
         self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
         self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
+
+    # ------------------------
+    def ReadMarley(self):
+        # we are mostly looking at nue anyway
+        self.info['nu_pdg'] = 12
+        if self.GetnuPDGFromFileName() == 'nue': self.info['nu_pdg'] = 12
+        if self.GetnuPDGFromFileName() == 'numu': self.info['nu_pdg'] = 14
+        if self.GetnuPDGFromFileName() == 'anue': self.info['nu_pdg'] = -12
+        if self.GetnuPDGFromFileName() == 'anumu': self.info['nu_pdg'] = -14
+        self.info['E_nu'] = self.GetEnuFromFileName()
 
     # ------------------------
     def ReadVertex(self):
@@ -85,13 +116,13 @@ class Event:
                 nucl = int(x.replace('N:', ''))
         # print(proc, nucl)
         proc_num = 0
-        if (proc.startswith('CC')): 
+        if (proc.startswith('CC')):
             proc_num = 10
             proc = proc.replace('CC', '')
-        elif (proc.startswith('NC')): 
+        elif (proc.startswith('NC')):
             proc_num = 20
             proc = proc.replace('NC', '')
-        else: 
+        else:
             proc_num = 30
         proc_dict = {
             'QES' : 1,
@@ -113,7 +144,7 @@ class Event:
             self.tracks[i].association['depoList'] = []
             self.tracks[i].association['children'] = []
             self.tracks[i].association['ancestor'] = i
-            
+
         for i in range(self.tracks.size):
             track = self.tracks[i]
             parId = track.GetParentId()
@@ -132,7 +163,7 @@ class Event:
         # depoEnergy = np.sum([depo.GetEnergyDeposit() for depo in self.depos[depoList]])
         # print('debug: muon deposit energy:', depoEnergy)
 
-        for i, depo in enumerate(self.depos):      
+        for i, depo in enumerate(self.depos):
             trkId = depo.Contrib[0]
             edep = depo.GetEnergyDeposit()
             # edepSecond = depo.GetSecondaryDeposit()
@@ -146,17 +177,22 @@ class Event:
 
     # ------------------------
     def FindDepoListFromTrack(self, trkId):
-        x = [i for (i, depo) 
-             in enumerate(self.depos) 
+        x = [i for (i, depo)
+             in enumerate(self.depos)
              if (trkId in depo.Contrib)]
             # if (trkId == depo.GetPrimaryId())]
         return x
 
     # ------------------------
     def PrintVertex(self):
-        self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
-        self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
-        print(f"neutrino {self.info['nu_pdg']}: {self.info['E_nu']} MeV")
+        try:
+            self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
+            self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
+            print(f"neutrino {self.info['nu_pdg']}: {self.info['E_nu']} MeV")
+        except:
+            print("PrintVertex: Marley events, assert info from file name")
+            self.ReadMarley()
+
         posx = self.vertex.GetPosition().X()
         posy = self.vertex.GetPosition().Y()
         posz = self.vertex.GetPosition().Z()
@@ -169,12 +205,16 @@ class Event:
         print(f'{"":>8}{"":>8}{"":>6}{"[MeV]":>10}{"[MeV]":>10}')
         print('-'*(8+8+6+10+10))
         for particle in self.vertex.Particles:
+            trkId = particle.GetTrackId()
+            # Skip negative trk id: in the case of Marley events,
+            # this usually is the final nucleus before deexcitation that G4 doesn't track
+            # the kinematics are not correct either
+            if trkId < 0: continue
             pdg = particle.GetPDGCode()
             name = particle.GetName()
-            trkId = particle.GetTrackId()
             mom = particle.GetMomentum()
             mass = mom.M()
-            KE = mom.E() - mass            
+            KE = mom.E() - mass
             print(f'{pdg:>8d}{name:>8s}{trkId:>6d}{mass:>10.2f}{KE:>10.2f}')
         print('-'*(8+8+6+10+10))
 
@@ -184,12 +224,16 @@ class Event:
     def FillEnergyInfo(self):
 
         for particle in self.vertex.Particles:
-            pdg = particle.GetPDGCode()
             trkId = particle.GetTrackId()
+            # Skip negative trk id: in the case of Marley events,
+            # this usually is the final nucleus before deexcitation that G4 doesn't track
+            # the kinematics are not correct either
+            if trkId < 0: continue
+            pdg = particle.GetPDGCode()
             depoE = self.GetEnergyDepoWithDesendents(trkId)
             mom = particle.GetMomentum()
             mass = mom.M()
-            KE = mom.E() - mass            
+            KE = mom.E() - mass
             self.info['E_depoTotal'] += depoE
             # fill E_availList: lepton, proton, neutron, pi+-, pi0, others.
             if (pdg in [13, -13, 11, -11]):
@@ -198,7 +242,7 @@ class Event:
                 self.info['E_depoList'][0] += depoE
             elif (pdg == 2212):
                 self.info['E_avail'] += KE
-                self.info['E_availList'][1] += KE 
+                self.info['E_availList'][1] += KE
                 self.info['E_depoList'][1] += depoE
             elif (pdg == 2112):
                 self.info['E_avail'] += KE
@@ -223,7 +267,7 @@ class Event:
         #     if (pdg in [13, -13, 11, -11]):
         #         self.info['E_depoList'][0] += depoE
         #     elif (pdg == 2212):
-        #         self.info['E_depoList'][1] += depoE 
+        #         self.info['E_depoList'][1] += depoE
         #     elif (pdg == 2112):
         #         self.info['E_depoList'][2] += depoE
         #     elif (pdg in [211, -211]):
@@ -231,7 +275,7 @@ class Event:
         #     elif (pdg == 111):
         #         self.info['E_depoList'][4] += depoE
         #     else:
-        #         self.info['E_depoList'][5] += depoE            
+        #         self.info['E_depoList'][5] += depoE
 
 
     # ------------------------
@@ -262,8 +306,8 @@ class Event:
         for point in track.Points:
             x = point.GetPosition().X()
             y = point.GetPosition().Y()
-            z = point.GetPosition().Z() 
-            t = point.GetPosition().T() 
+            z = point.GetPosition().Z()
+            t = point.GetPosition().T()
             print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
 
     # ------------------------
@@ -280,7 +324,7 @@ class Event:
             parId = track.GetParentId()
             mom = track.GetInitialMomentum()
             mass = mom.M()
-            KE = mom.E() - mass        
+            KE = mom.E() - mass
             ancestor = track.association['ancestor']
             selfDepo = track.energy['depoTotal']
             allDepo = self.GetEnergyDepoWithDesendents(trkId)
@@ -292,7 +336,7 @@ class Event:
     # ------------------------
     def Next(self):
         if self.currentEntry != self.nEntry -1:
-            self.currentEntry += 1 
+            self.currentEntry += 1
         else:
             self.currentEntry = 0
         self.Jump(self.currentEntry)
@@ -300,7 +344,7 @@ class Event:
     # ------------------------
     def Prev(self):
         if self.currentEntry != 0:
-            self.currentEntry -= 1 
+            self.currentEntry -= 1
         else:
             self.currentEntry = self.nEntry -1
         self.Jump(self.currentEntry)
@@ -317,11 +361,28 @@ class Event:
     #-------------------------
     def GetEnergyDepoWithAncestor(self, acId):
         energy = 0
-        for track in self.tracks:    
+        for track in self.tracks:
             ancestor = track.association['ancestor']
             if ancestor == acId:
-                energy += track.energy['depoTotal']        
+                energy += track.energy['depoTotal']
         return energy
+
+    #-----------------------
+    def GetEnuFromFileName(self):
+        # This is used for Marley low energy files
+        # No need for Genie, can read from gRooTracker tree directly
+        filename = self.GetFileName().split('/')[-1]
+        filename = filename.split('_')[-2]
+        filename = filename.replace('MeV', '')
+        return float(filename)  # Marley file names already in MeV
+
+    #-----------------------
+    def GetnuPDGFromFileName(self):
+        # This is used for Marley low energy files
+        # No need for Genie, can read from gRooTracker tree directly
+        filename = self.GetFileName().split('/')[-1]
+        filename = filename.split('_')[-3]
+        return filename
 
     #-----------------------
     def GetFileName(self):
@@ -333,5 +394,5 @@ if __name__ == "__main__":
     event.PrintVertex()
     event.Next()
     event.PrintVertex()
-    event.PrintTracks(0,8)    
+    event.PrintTracks(0,8)
     # event.PrintTrack(1)
