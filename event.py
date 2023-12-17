@@ -40,24 +40,6 @@ class Event:
             print("Unknown event generator!")
             sys.exit()
 
-        """try:
-            edep_file = TFile(self.fileName, "OPEN")
-            test = edep_file.Get("DetSimPassThru/gRooTracker")
-            if not test:
-                raise Exception("Sorry, no gRooTracker in file")
-        except:
-            # MARLEY
-            print("Skip looking for gRooTracker directory.")
-        else:
-            # Genie
-            self.genieTree = TChain("DetSimPassThru/gRooTracker")
-            self.genieTree.Add(self.fileName)
-            # self.genieTree = self.rootFile.Get("DetSimPassThru/gRooTracker")
-            self.nGenieEntry = self.genieTree.GetEntries()
-            if self.nEntry != self.nGenieEntry:
-                print("Edep-sim tree and GENIE tree number of entries do not match!")
-                sys.exit()"""
-
         self.event = TG4Event()
         self.simTree.SetBranchAddress("Event", self.event)
 
@@ -90,13 +72,6 @@ class Event:
         else:
             print("Unknown event generator!")
             sys.exit()
-
-        """try:
-            self.ReadGenie()
-        except:
-            # MARLEY
-            print("Jump: Marley events, assert info from file name")
-            self.ReadMarley()"""
 
     # ------------------------
     def ReadGenie(self):
@@ -218,14 +193,6 @@ class Event:
         else:
             print("Unknown event generator!")
             sys.exit()
-
-        """try:
-            self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
-            self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
-            print(f"neutrino {self.info['nu_pdg']}: {self.info['E_nu']} MeV")
-        except:
-            print("PrintVertex: Marley events, assert info from file name")
-            self.ReadMarley()"""
 
         posx = self.vertex.GetPosition().X()
         posy = self.vertex.GetPosition().Y()
