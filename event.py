@@ -6,9 +6,10 @@ import numpy as np
 
 class Event:
 
-    def __init__(self, fileName):
+    def __init__(self, fileName, evgen='Genie'):
         print("event: initilization")
         self.fileName = fileName
+        self.evgen = evgen
         self.ReadTree()
 
         self.currentEntry = 0
@@ -26,23 +27,18 @@ class Event:
         self.simTree.Add(self.fileName)
         self.nEntry = self.simTree.GetEntries()
         # Only Genie has gRooTracker, Marley doesn't
-        try:
-            edep_file = TFile(self.fileName, "OPEN")
-            test = edep_file.Get("DetSimPassThru/gRooTracker")
-            if not test:
-                raise Exception("Sorry, no gRooTracker in file")
-        except:
-            # MARLEY
-            print("Skip looking for gRooTracker directory.")
-        else:
-            # Genie
+        if self.evgen == 'Genie':
             self.genieTree = TChain("DetSimPassThru/gRooTracker")
             self.genieTree.Add(self.fileName)
             # self.genieTree = self.rootFile.Get("DetSimPassThru/gRooTracker")
-            self.nGenieEntry = self.genieTree.GetEntries()
-            if self.nEntry != self.nGenieEntry:
+            if self.nEntry != self.genieTree.GetEntries():
                 print("Edep-sim tree and GENIE tree number of entries do not match!")
                 sys.exit()
+        elif self.evgen == 'Marley':
+            print("Marley events: Skip looking for gRooTracker directory.")
+        else:
+            print("Unknown event generator!")
+            sys.exit()
 
         self.event = TG4Event()
         self.simTree.SetBranchAddress("Event", self.event)
@@ -61,19 +57,21 @@ class Event:
         self.info = {}
         self.info['E_nu'] = 0
         self.info['E_avail'] = 0
-        self.info['E_availList'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
+        self.info['E_availList'] = np.zeros(8) # lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.info['E_depoTotal'] = 0
-        self.info['E_depoList'] = np.zeros(6) # lepton, proton, neutron, pi+-, pi0, others.
+        self.info['E_depoList'] = np.zeros(8) # lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.info['N_parList'] = np.zeros(8) # lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.info['nu_pdg'] = 0
         self.info['nu_xs'] = self.vertex.GetCrossSection()
         self.info['nu_proc'], self.info['nu_nucl'] = self.GetReaction()
         self.FillEnergyInfo()
-        try:
+        if self.evgen == 'Genie':
             self.ReadGenie()
-        except:
-            # MARLEY
-            print("Jump: Marley events, assert info from file name")
+        elif self.evgen == 'Marley':
             self.ReadMarley()
+        else:
+            print("Unknown event generator!")
+            sys.exit()
 
     # ------------------------
     def ReadGenie(self):
@@ -94,6 +92,7 @@ class Event:
         if self.GetnuPDGFromFileName() == 'anue': self.info['nu_pdg'] = -12
         if self.GetnuPDGFromFileName() == 'anumu': self.info['nu_pdg'] = -14
         self.info['E_nu'] = self.GetEnuFromFileName()
+        print("Marley events: assert info from file name")
 
     # ------------------------
     def ReadVertex(self):
@@ -185,13 +184,15 @@ class Event:
 
     # ------------------------
     def PrintVertex(self):
-        try:
+        if self.evgen == 'Genie':
             self.info['nu_pdg'] = self.genieTree.StdHepPdg[0]
             self.info['E_nu'] = self.genieTree.StdHepP4[3]*1000
             print(f"neutrino {self.info['nu_pdg']}: {self.info['E_nu']} MeV")
-        except:
-            print("PrintVertex: Marley events, assert info from file name")
+        elif self.evgen == 'Marley':
             self.ReadMarley()
+        else:
+            print("Unknown event generator!")
+            sys.exit()
 
         posx = self.vertex.GetPosition().X()
         posy = self.vertex.GetPosition().Y()
@@ -235,31 +236,47 @@ class Event:
             mass = mom.M()
             KE = mom.E() - mass
             self.info['E_depoTotal'] += depoE
-            # fill E_availList: lepton, proton, neutron, pi+-, pi0, others.
+            # fill E_availList: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
             if (pdg in [13, -13, 11, -11]):
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][0] += (KE + mass)
                 self.info['E_depoList'][0] += depoE
+                self.info['N_parList'][0] += 1
             elif (pdg == 2212):
                 self.info['E_avail'] += KE
                 self.info['E_availList'][1] += KE
                 self.info['E_depoList'][1] += depoE
+                self.info['N_parList'][1] += 1
             elif (pdg == 2112):
                 self.info['E_avail'] += KE
                 self.info['E_availList'][2] += KE
                 self.info['E_depoList'][2] += depoE
+                self.info['N_parList'][2] += 1
             elif (pdg in [211, -211]):
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][3] += (KE + mass)
                 self.info['E_depoList'][3] += depoE
+                self.info['N_parList'][3] += 1
             elif (pdg == 111):
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][4] += (KE + mass)
                 self.info['E_depoList'][4] += depoE
+                self.info['N_parList'][4] += 1
+            elif (pdg == 22):
+                self.info['E_avail'] += (KE + mass)
+                self.info['E_availList'][5] += (KE + mass)
+                self.info['E_depoList'][5] += depoE
+                self.info['N_parList'][5] += 1
+            elif (pdg == 1000020040):
+                self.info['E_avail'] += KE
+                self.info['E_availList'][6] += KE
+                self.info['E_depoList'][6] += depoE
+                self.info['N_parList'][6] += 1
             else:
                 self.info['E_avail'] += KE
-                self.info['E_availList'][5] += KE
-                self.info['E_depoList'][5] += depoE
+                self.info['E_availList'][7] += KE
+                self.info['E_depoList'][7] += depoE
+                self.info['N_parList'][7] += 1
 
         # for track in self.tracks:
         #     pdg = track.GetPDGCode()

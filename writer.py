@@ -33,16 +33,17 @@ class Writer:
         self.E_avail = array('f', [0]) # energy availabe from vertex interaction (excluding energy lost inside nuclei)
         self.T_out.Branch('E_avail', self.E_avail, 'E_avail/F')
 
-        self.E_availList = np.zeros((6,), dtype=np.float32) # E avail for: lepton, proton, neutron, pi+-, pi0, others.
-        self.T_out.Branch('E_availList', self.E_availList, 'E_availList[6]/F')
+        self.E_availList = np.zeros((8,), dtype=np.float32) # E avail for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('E_availList', self.E_availList, 'E_availList[8]/F')
 
         self.E_depoTotal = array('f', [0]) # total energy deposit from all (charged) tracks
         self.T_out.Branch('E_depoTotal', self.E_depoTotal, 'E_depoTotal/F')
 
-        self.E_depoList = np.zeros((6,), dtype=np.float32) # depo for: lepton, proton, neutron, pi+-, pi0, others.
-        self.T_out.Branch('E_depoList', self.E_depoList, 'E_depoList[6]/F')
+        self.E_depoList = np.zeros((8,), dtype=np.float32) # depo for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('E_depoList', self.E_depoList, 'E_depoList[8]/F')
 
-
+        self.N_parList = np.zeros((8,), dtype=np.int32) # number of particles for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('N_parList', self.N_parList, 'N_parList[8]/I')
 
     def Write(self):
         # self.stat = {
@@ -66,6 +67,7 @@ class Writer:
             self.E_avail[0] = self.event.info['E_avail']
             self.E_availList[:] = self.event.info['E_availList']
             self.E_depoList[:] = self.event.info['E_depoList']
+            self.N_parList[:] = self.event.info['N_parList']
 
             self.T_out.Fill()
 
@@ -73,10 +75,10 @@ class Writer:
         # print(self.stat)
 
 if __name__ == "__main__":
-    if (len(sys.argv)>2):
-        outfile = sys.argv[2]
+    if (len(sys.argv)>3):
+        outfile = sys.argv[3]
     else:
         outfile = 'output.root'
-    event = Event(sys.argv[1])
+    event = Event(sys.argv[1], sys.argv[2])
     w = Writer(event, outfile)
     w.Write()

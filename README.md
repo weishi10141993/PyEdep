@@ -8,7 +8,7 @@ from event import Event
 from plotter import Plotter
 %matplotlib inline
 
-event = Event("path/to/rootfile")
+event = Event("path/to/rootfile", 'Marley')
 p = Plotter(event)
 
 p.Draw('yz', value='time')
@@ -19,13 +19,13 @@ p.Draw('yz')
 
 event.PrintVertex()
 event.PrintTracks(0, 8)
-event.PrintTrack(0) 
+event.PrintTrack(0)
 ```
 
 ## Writer
 Summarize list of edep-sim root files into a customized output tree
 ```py
-python3 writer.py 'input_file*.root' output_file.root
+python3 writer.py 'input_file*.root' 'Marley' output_file.root
 ```
 
 The branches are defined as follows:
@@ -37,6 +37,7 @@ The branches are defined as follows:
 | nu_nucl | int | interact with proton or neutron |
 | E_nu | MeV | true neutrino energy |
 | E_avail | MeV | available energy from initial state particles, including mass if meson or lepton |
-| E_availList | array, MeV | 0: mu/e; 1: proton; 2: neutron; 3: pi+/-; 4: pi0; 5: others |
+| E_availList | array, MeV | 0: mu/e; 1: proton; 2: neutron; 3: pi+/-; 4: pi0; 5: gamma; 6: alpha; 7: others |
 | E_depoTotal | MeV | total deposited energy  |
 | E_depoList | array, MeV | similar to E_availList but for deposited energy including all children |
+| N_parList | array, int | 0: mu/e; 1: proton; 2: neutron; 3: pi+/-; 4: pi0; 5: gamma; 6: alpha; 7: others |
