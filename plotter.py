@@ -63,7 +63,7 @@ class Plotter:
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5*2, 4), dpi=100)
         fig.suptitle(self.event.vertex.GetReaction())
-        cb_ax = fig.add_axes([.94,.124,.03,.754])
+        cb_ax = fig.add_axes([.94,.124,.02,.754])
 
         # particle plot
         ax1.scatter(mapping[axis[1]], mapping[axis[0]], c=self.cc, s=markerSize)
@@ -82,16 +82,27 @@ class Plotter:
         # fig.tight_layout()
 
         for ax in (ax1, ax2):
-            ax.set_ylim(-4, 4)
-            ax.set_xlim(-2, 8)
+            if self.event.evgen == 'Genie':
+                ax.set_ylim(-4, 4)
+                ax.set_xlim(-2, 8)
+                xpos = -1.8
+                ypos = 3.6
+                interval = 0.35
+            elif self.event.evgen == 'Marley':
+                ax.set_ylim(-1, 1.5)
+                ax.set_xlim(-1, 1.5)
+                xpos = -0.95
+                ypos = 1.4
+                interval = 0.1
+            else:
+                print("Unknown event generator!")
+                sys.exit()
             ax.tick_params(axis='y', direction='in', length=2)
             ax.tick_params(axis='x', direction='in', length=2)
             ax.set_xlabel(f'{axis[1]} [m]')
             if ax == ax1:
                 ax.set_ylabel(f'{axis[0]} [m]')
 
-        xpos = -1.8
-        ypos = 3.6
         nColor = len(self.USER_COLORS)
         countnegId = 0
         for i, particle in enumerate(self.event.vertex.Particles):
@@ -113,7 +124,7 @@ class Plotter:
             name = '%s: %.1f MeV' % (name, KE)
 
             ax1.text(xpos, ypos, name, color=color)
-            ypos -= 0.35
+            ypos -= interval
 
         #ax2.plot()
         fig.savefig(self.event.plotpath + '/particle_%s_evt_%d.pdf' % (value, self.event.currentEntry) )
@@ -123,6 +134,7 @@ class Plotter:
 
     def hist_dqdx(self):
         plt.hist(self.ee*2, range=(0,6), bins=100)
+        plt.xlabel('dE/dx [MeV/cm]')
         plt.draw()
         plt.savefig(self.event.plotpath + '/dE_dx_evt_%d.pdf' % self.event.currentEntry)
         plt.clf() # important to clear figure
