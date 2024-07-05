@@ -9,9 +9,9 @@ class Plotter:
     def __init__(self, event):
         print("plotter: initilization")
         self.event = event
-        self.Jump(0)
+        #self.Jump(0, 0.5)
 
-    def Collect(self):
+    def Collect(self, dQthreshold):
         self.xx = np.array([])
         self.yy = np.array([])
         self.zz = np.array([])
@@ -35,30 +35,30 @@ class Plotter:
                 z = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2m
                 t = (depo.GetStart().T() + depo.GetStop().T()) / 2 # ns
                 e = depo.GetEnergyDeposit()
-                l = depo.GetTrackLength() *mm2cm # most are 0.5 mm
-                self.xx = np.append(self.xx, x)
-                self.yy = np.append(self.yy, y)
-                self.zz = np.append(self.zz, z)
-                self.tt = np.append(self.tt, t)
-                self.ee = np.append(self.ee, e)
-                self.ll = np.append(self.ll, l)
-                self.cc = np.append(self.cc, self.USER_COLORS[ancestor % nColor])
+                l = depo.GetTrackLength() *mm2cm # most are 0.5 cm
+                if self.event.ChargeBirksLaw(e, l) > dQthreshold: # detector threshold
+                    self.xx = np.append(self.xx, x)
+                    self.yy = np.append(self.yy, y)
+                    self.zz = np.append(self.zz, z)
+                    self.tt = np.append(self.tt, t)
+                    self.ee = np.append(self.ee, e)
+                    self.ll = np.append(self.ll, l)
+                    self.cc = np.append(self.cc, self.USER_COLORS[ancestor % nColor])
 
-    def Jump(self, entryNo):
+    def Jump(self, entryNo, dQthreshold):
         self.event.Jump(entryNo)
-        self.Collect()
+        self.Collect(dQthreshold)
 
-    def Next(self):
+    def Next(self, dQthreshold):
         self.event.Next()
-        self.Collect()
+        self.Collect(dQthreshold)
 
-    def Prev(self):
+    def Prev(self, dQthreshold):
         self.event.Prev()
-        self.Collect()
+        self.Collect(dQthreshold)
 
-    def Draw(self, axis='yz', value='time', markerSize=0.2, cmap='jet', vmax=2000):
+    def Draw(self, axis='yz', value='time', energy= 'GeV', markerSize=0.2, cmap='jet', vmax=2000):
         # particle, timing, dE/dx
-
         mapping = {'x': self.xx, 'y': self.yy, 'z': self.zz}
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5*2, 4), dpi=100)
@@ -74,7 +74,10 @@ class Plotter:
 
         elif value == 'charge':
             # charge plot
-            plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
+            if energy == 'GeV':
+                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
+            elif energy == 'MeV':
+                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=np.divide(self.ee, self.ll), cmap=cmap, vmax=4, s=markerSize)
             cb_ax.set_xlabel('MeV/cm')
 
 
@@ -89,11 +92,22 @@ class Plotter:
                 ypos = 3.6
                 interval = 0.35
             elif self.event.evgen == 'Marley':
+                # Normally Marley use this scale
                 ax.set_ylim(-1, 1.5)
                 ax.set_xlim(-1, 1.5)
+                interval = 0.1
                 xpos = -0.95
                 ypos = 1.4
-                interval = 0.1
+                # Debug neutron depo
+                #ax.set_ylim(-200, 200)
+                #ax.set_xlim(-200, 200)
+                #interval = 16
+                #xpos = -195
+                #ypos = 190
+                # n-capture scale
+                #ax.set_ylim(-0.3, 0.3)
+                #ax.set_xlim(-0.3, 0.3)
+                #interval = 0.024
             else:
                 print("Unknown event generator!")
                 sys.exit()
@@ -127,12 +141,13 @@ class Plotter:
             ypos -= interval
 
         #ax2.plot()
-        fig.savefig(self.event.plotpath + '/particle_%s_evt_%d.pdf' % (value, self.event.currentEntry) )
+        fig.savefig(self.event.plotpath + '/particle_%s_%s_%s_evt_%d.pdf' % (value, axis, energy, self.event.currentEntry) )
         plt.clf() # important to clear figure
         plt.close()
         #plt.show()
 
-    def hist_dqdx(self):
+    # For GeV events
+    def hist_dEdx(self):
         plt.hist(self.ee*2, range=(0,6), bins=100)
         plt.xlabel('dE/dx [MeV/cm]')
         plt.draw()
@@ -141,6 +156,36 @@ class Plotter:
         plt.close()
         #plt.show()
 
+    # For low E MeV events, edep length is smaller than 0.5cm (5mm step limit in gdml)
+    def hist_LowE_dEdx(self):
+        plt.hist(np.divide(self.ee, self.ll), range=(0,30), bins=500)
+        plt.xlabel('dE/dx [MeV/cm]')
+        plt.draw()
+        plt.savefig(self.event.plotpath + '/LowE_dE_dx_evt_%d.pdf' % self.event.currentEntry)
+        plt.clf() # important to clear figure
+        plt.close()
+
+    def hist_dx(self):
+        plt.hist(self.ll, range=(0,4), bins=100)
+        plt.xlabel('dx [cm]')
+        plt.draw()
+        plt.savefig(self.event.plotpath + '/single_edep_dx_evt_%d.pdf' % self.event.currentEntry)
+        plt.clf() # important to clear figure
+        plt.close()
+        return self.ll #cm
+
+    def hist_trklength(self):
+        all_tracks_length = np.array([])
+        for i, track in enumerate(self.event.tracks):
+            all_tracks_length = np.append(all_tracks_length, track.length['selfDepo'])
+
+        plt.hist(all_tracks_length, range=(0,6), bins=100)
+        plt.xlabel('track length [cm]')
+        plt.draw()
+        plt.savefig(self.event.plotpath + '/primary_track_length_evt_%d.pdf' % self.event.currentEntry)
+        plt.clf() # important to clear figure
+        plt.close()
+        return all_tracks_length #cm
 
     #---------------------------------------------
     def DrawROOT(self, dim2d='yz', markerSize=0.2):
@@ -203,7 +248,7 @@ class Plotter:
 if __name__ == "__main__":
     event = Event(sys.argv[1])
     p = Plotter(event)
-    p.Next()
-    p.Draw('yz')
+    #p.Next()
+    #p.Draw('yz')
     # c1 = p.DrawROOT('xz', 0.2)
     # input('press a key to continue ...')
