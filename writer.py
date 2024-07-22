@@ -69,6 +69,24 @@ class Writer:
         self.Q_depoList_th_500keV = np.zeros((8,), dtype=np.float32) # charge depo with 500keV cut for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.T_out.Branch('Q_depoList_th_500keV', self.Q_depoList_th_500keV, 'Q_depoList_th_500keV[8]/F')
 
+        self.Q_depoTotal_MBox = array('f', [0]) # total charge deposit from all (charged) tracks Modified Box Model
+        self.T_out.Branch('Q_depoTotal_MBox', self.Q_depoTotal_MBox, 'Q_depoTotal_MBox/F')
+
+        self.Q_depoList_MBox = np.zeros((8,), dtype=np.float32) # charge depo for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('Q_depoList_MBox', self.Q_depoList_MBox, 'Q_depoList_MBox[8]/F')
+
+        self.Q_depoTotal_MBox_th_75keV = array('f', [0]) # total charge deposit from all (charged) tracks with dQ cut of 75keV
+        self.T_out.Branch('Q_depoTotal_MBox_th_75keV', self.Q_depoTotal_MBox_th_75keV, 'Q_depoTotal_MBox_th_75keV/F')
+
+        self.Q_depoList_MBox_th_75keV = np.zeros((8,), dtype=np.float32) # charge depo with 75keV cut for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('Q_depoList_MBox_th_75keV', self.Q_depoList_MBox_th_75keV, 'Q_depoList_MBox_th_75keV[8]/F')
+
+        self.Q_depoTotal_MBox_th_500keV = array('f', [0]) # total charge deposit from all (charged) tracks with dQ cut of 500keV
+        self.T_out.Branch('Q_depoTotal_MBox_th_500keV', self.Q_depoTotal_MBox_th_500keV, 'Q_depoTotal_MBox_th_500keV/F')
+
+        self.Q_depoList_MBox_th_500keV = np.zeros((8,), dtype=np.float32) # charge depo with 500keV cut for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('Q_depoList_MBox_th_500keV', self.Q_depoList_MBox_th_500keV, 'Q_depoList_MBox_th_500keV[8]/F')
+
         self.Q_depoTotal_dots_th_75keV = array('f', [0]) # total charge deposit from all short dots/blips with dQ cut of 75keV
         self.T_out.Branch('Q_depoTotal_dots_th_75keV', self.Q_depoTotal_dots_th_75keV, 'Q_depoTotal_dots_th_75keV/F')
 
@@ -105,6 +123,36 @@ class Writer:
         self.L_depoList_avg_35PEpMeV = np.zeros((8,), dtype=np.float32) # light depo with mean LY 35PE/MeV for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.T_out.Branch('L_depoList_avg_35PEpMeV', self.L_depoList_avg_35PEpMeV, 'L_depoList_avg_35PEpMeV[8]/F')
 
+        self.L_depoTotal_MBox_avg_220PEpMeV = array('f', [0]) # total light deposit from all (charged) tracks with mean light yield 220PE/MeV
+        self.T_out.Branch('L_depoTotal_MBox_avg_220PEpMeV', self.L_depoTotal_MBox_avg_220PEpMeV, 'L_depoTotal_MBox_avg_220PEpMeV/F')
+
+        self.L_depoList_MBox_avg_220PEpMeV = np.zeros((8,), dtype=np.float32) # light depo with mean LY 220PE/MeV for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('L_depoList_MBox_avg_220PEpMeV', self.L_depoList_MBox_avg_220PEpMeV, 'L_depoList_MBox_avg_220PEpMeV[8]/F')
+
+        self.L_depoTotal_MBox_avg_180PEpMeV = array('f', [0]) # total light deposit from all (charged) tracks with mean light yield 180PE/MeV
+        self.T_out.Branch('L_depoTotal_MBox_avg_180PEpMeV', self.L_depoTotal_MBox_avg_180PEpMeV, 'L_depoTotal_MBox_avg_180PEpMeV/F')
+
+        self.L_depoList_MBox_avg_180PEpMeV = np.zeros((8,), dtype=np.float32) # light depo with mean LY 180PE/MeV for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('L_depoList_MBox_avg_180PEpMeV', self.L_depoList_MBox_avg_180PEpMeV, 'L_depoList_MBox_avg_180PEpMeV[8]/F')
+
+        self.L_depoTotal_MBox_avg_140PEpMeV = array('f', [0]) # total light deposit from all (charged) tracks with mean light yield 140PE/MeV
+        self.T_out.Branch('L_depoTotal_MBox_avg_140PEpMeV', self.L_depoTotal_MBox_avg_140PEpMeV, 'L_depoTotal_MBox_avg_140PEpMeV/F')
+
+        self.L_depoList_MBox_avg_140PEpMeV = np.zeros((8,), dtype=np.float32) # light depo with mean LY 140PE/MeV for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('L_depoList_MBox_avg_140PEpMeV', self.L_depoList_MBox_avg_140PEpMeV, 'L_depoList_MBox_avg_140PEpMeV[8]/F')
+
+        self.L_depoTotal_MBox_avg_100PEpMeV = array('f', [0]) # total light deposit from all (charged) tracks with mean light yield 100PE/MeV
+        self.T_out.Branch('L_depoTotal_MBox_avg_100PEpMeV', self.L_depoTotal_MBox_avg_100PEpMeV, 'L_depoTotal_MBox_avg_100PEpMeV/F')
+
+        self.L_depoList_MBox_avg_100PEpMeV = np.zeros((8,), dtype=np.float32) # light depo with mean LY 100PE/MeV for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('L_depoList_MBox_avg_100PEpMeV', self.L_depoList_MBox_avg_100PEpMeV, 'L_depoList_MBox_avg_100PEpMeV[8]/F')
+
+        self.L_depoTotal_MBox_avg_35PEpMeV = array('f', [0]) # total light deposit from all (charged) tracks with mean light yield 100PE/MeV
+        self.T_out.Branch('L_depoTotal_MBox_avg_35PEpMeV', self.L_depoTotal_MBox_avg_35PEpMeV, 'L_depoTotal_MBox_avg_35PEpMeV/F')
+
+        self.L_depoList_MBox_avg_35PEpMeV = np.zeros((8,), dtype=np.float32) # light depo with mean LY 35PE/MeV for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
+        self.T_out.Branch('L_depoList_MBox_avg_35PEpMeV', self.L_depoList_MBox_avg_35PEpMeV, 'L_depoList_MBox_avg_35PEpMeV[8]/F')
+
         self.N_parList = np.zeros((8,), dtype=np.int32) # number of particles for: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.T_out.Branch('N_parList', self.N_parList, 'N_parList[8]/I')
 
@@ -140,6 +188,14 @@ class Writer:
             self.L_depoTotal_avg_100PEpMeV[0] = self.event.info['L_depoTotal_avg_100PEpMeV']
             self.L_depoTotal_avg_35PEpMeV[0] = self.event.info['L_depoTotal_avg_35PEpMeV']
 
+            self.Q_depoTotal_MBox[0] = self.event.info['Q_depoTotal_MBox']
+            self.Q_depoTotal_MBox_th_75keV[0]  = self.event.info['Q_depoTotal_MBox_th_75keV']
+            self.Q_depoTotal_MBox_th_500keV[0] = self.event.info['Q_depoTotal_MBox_th_500keV']
+            self.L_depoTotal_MBox_avg_220PEpMeV[0] = self.event.info['L_depoTotal_MBox_avg_220PEpMeV']
+            self.L_depoTotal_MBox_avg_180PEpMeV[0] = self.event.info['L_depoTotal_MBox_avg_180PEpMeV']
+            self.L_depoTotal_MBox_avg_140PEpMeV[0] = self.event.info['L_depoTotal_MBox_avg_140PEpMeV']
+            self.L_depoTotal_MBox_avg_100PEpMeV[0] = self.event.info['L_depoTotal_MBox_avg_100PEpMeV']
+            self.L_depoTotal_MBox_avg_35PEpMeV[0]  = self.event.info['L_depoTotal_MBox_avg_35PEpMeV']
 
             self.E_availList[:] = self.event.info['E_availList']
             self.E_depoList[:] = self.event.info['E_depoList']
@@ -153,6 +209,15 @@ class Writer:
             self.L_depoList_avg_140PEpMeV[:] = self.event.info['L_depoList_avg_140PEpMeV']
             self.L_depoList_avg_100PEpMeV[:] = self.event.info['L_depoList_avg_100PEpMeV']
             self.L_depoList_avg_35PEpMeV[:] = self.event.info['L_depoList_avg_35PEpMeV']
+
+            self.Q_depoList_MBox[:] = self.event.info['Q_depoList_MBox']
+            self.Q_depoList_MBox_th_75keV[:] = self.event.info['Q_depoList_MBox_th_75keV']
+            self.Q_depoList_MBox_th_500keV[:] = self.event.info['Q_depoList_MBox_th_500keV']
+            self.L_depoList_MBox_avg_220PEpMeV[:] = self.event.info['L_depoList_MBox_avg_220PEpMeV']
+            self.L_depoList_MBox_avg_180PEpMeV[:] = self.event.info['L_depoList_MBox_avg_180PEpMeV']
+            self.L_depoList_MBox_avg_140PEpMeV[:] = self.event.info['L_depoList_MBox_avg_140PEpMeV']
+            self.L_depoList_MBox_avg_100PEpMeV[:] = self.event.info['L_depoList_MBox_avg_100PEpMeV']
+            self.L_depoList_MBox_avg_35PEpMeV[:] = self.event.info['L_depoList_MBox_avg_35PEpMeV']
 
             self.N_parList[:] = self.event.info['N_parList']
 

@@ -93,9 +93,9 @@ class Plotter:
                 interval = 0.35
             elif self.event.evgen == 'Marley':
                 # Normally Marley use this scale
-                ax.set_ylim(-1, 1.5)
-                ax.set_xlim(-1, 1.5)
-                interval = 0.1
+                #ax.set_ylim(-1, 1.5)
+                #ax.set_xlim(-1, 1.5)
+                #interval = 0.1
                 xpos = -0.95
                 ypos = 1.4
                 # Debug neutron depo
@@ -105,9 +105,9 @@ class Plotter:
                 #xpos = -195
                 #ypos = 190
                 # n-capture scale
-                #ax.set_ylim(-0.3, 0.3)
-                #ax.set_xlim(-0.3, 0.3)
-                #interval = 0.024
+                ax.set_ylim(-0.3, 0.3)
+                ax.set_xlim(-0.3, 0.3)
+                interval = 0.024
             else:
                 print("Unknown event generator!")
                 sys.exit()
