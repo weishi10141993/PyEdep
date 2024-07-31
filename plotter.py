@@ -3,6 +3,7 @@ import sys
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 class Plotter:
 
@@ -34,7 +35,7 @@ class Plotter:
                 y = (depo.GetStart().Y() + depo.GetStop().Y()) / 2 * mm2m
                 z = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2m
                 t = (depo.GetStart().T() + depo.GetStop().T()) / 2 # ns
-                e = depo.GetEnergyDeposit()
+                e = depo.GetEnergyDeposit() # MeV
                 l = depo.GetTrackLength() *mm2cm # most are 0.5 cm
                 if self.event.ChargeBirksLaw(e, l) > dQthreshold: # detector threshold
                     self.xx = np.append(self.xx, x)
@@ -186,6 +187,21 @@ class Plotter:
         plt.clf() # important to clear figure
         plt.close()
         return all_tracks_length #cm
+
+    def evt_maxdtdr(self): # per evt has one max dt
+        nedeps = len(self.tt)
+        max_edep_dr, max_edep_dt = 0, 0
+        for iedep in range(nedeps):
+            for jedep in range(iedep+1, nedeps):
+                temp_dt = abs(np.float128(self.tt[iedep] - self.tt[jedep])) # ns
+                # unit m
+                temp_dr = math.sqrt( pow(np.float128(self.xx[iedep] - self.xx[jedep]), 2) + pow(np.float128(self.yy[iedep] - self.yy[jedep]), 2) + pow(np.float128(self.zz[iedep] - self.zz[jedep]), 2) )
+                if temp_dt > max_edep_dt:
+                    max_edep_dt = temp_dt
+                if temp_dr > max_edep_dr:
+                    max_edep_dr = temp_dr
+
+        return [max_edep_dr*100, max_edep_dt] #cm, ns
 
     #---------------------------------------------
     def DrawROOT(self, dim2d='yz', markerSize=0.2):

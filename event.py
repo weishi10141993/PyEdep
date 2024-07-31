@@ -137,7 +137,7 @@ class Event:
     # ------------------------
     def ReadVertex(self):
         primaries = np.array(self.event.Primaries)
-        if (primaries.size != 1):
+        if (primaries.size != 1 and self.evgen == 'Genie'):
             print("Number of primaries not equal to 1 (not neutrino vertex)!")
             return
 
