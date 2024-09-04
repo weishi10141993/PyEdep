@@ -240,13 +240,28 @@ class Event:
 
             # Light deposit
             # edepSecond = depo.GetSecondaryDeposit()
+            # Ideally this should be the light dep
+            # how the light yield is actually derived: 25k photons / MeV are simualted and 220 on average are detected
+            # the overall photon collection efficiency (PCE) is
+            #    220/25000=0.88% PCE
+            #    180/25000=0.72% PCE
+            #    140/25000=0.56% PCE
+            #    100/25000=0.4% PCE
+            #    35/25000=0.14% PCE
+
+            #    220/21622=1.0% PCE
+            #    180/21622=0.83% PCE
+            #    140/21622=0.65% PCE
+            #    100/21622=0.46% PCE
+            #    35/21622=0.16% PCE
+            # (dL/W_ph)*PCE = (dL/19.5eV)*PCE = number of photons (taking into account Birks model)
             Ldep = edep - Qdep
             Ldep_MBox = edep - Qdep_MBox
-            nPE_220 = Ldep*220
-            nPE_180 = Ldep*180
-            nPE_140 = Ldep*140
-            nPE_100 = Ldep*100
-            nPE_35  = Ldep*35
+            nPE_220 = (Ldep*1000000/19.5)*0.01
+            nPE_180 = (Ldep*1000000/19.5)*0.0083
+            nPE_140 = (Ldep*1000000/19.5)*0.0065
+            nPE_100 = (Ldep*1000000/19.5)*0.0046
+            nPE_35  = (Ldep*1000000/19.5)*0.0016
             nPE_220_MBox = Ldep_MBox*220
             nPE_180_MBox = Ldep_MBox*180
             nPE_140_MBox = Ldep_MBox*140
@@ -262,11 +277,11 @@ class Event:
             nPE_140_MBox_detected = random.gauss(nPE_140_MBox, math.sqrt(nPE_140_MBox))
             nPE_100_MBox_detected = random.gauss(nPE_100_MBox, math.sqrt(nPE_100_MBox))
             nPE_35_MBox_detected  = random.gauss(nPE_35_MBox,  math.sqrt(nPE_35_MBox))
-            Ldep_avg_220PEpMeV_detected = nPE_220_detected/220
-            Ldep_avg_180PEpMeV_detected = nPE_180_detected/180
-            Ldep_avg_140PEpMeV_detected = nPE_140_detected/140
-            Ldep_avg_100PEpMeV_detected = nPE_100_detected/100
-            Ldep_avg_35PEpMeV_detected  = nPE_35_detected/35
+            Ldep_avg_220PEpMeV_detected = nPE_220_detected*19.5/1000000/0.01 # MeV
+            Ldep_avg_180PEpMeV_detected = nPE_180_detected*19.5/1000000/0.0083
+            Ldep_avg_140PEpMeV_detected = nPE_140_detected*19.5/1000000/0.0065
+            Ldep_avg_100PEpMeV_detected = nPE_100_detected*19.5/1000000/0.0046
+            Ldep_avg_35PEpMeV_detected  = nPE_35_detected*19.5/1000000/0.0016
             Ldep_avg_220PEpMeV_MBox_detected = nPE_220_MBox_detected/220
             Ldep_avg_180PEpMeV_MBox_detected = nPE_180_MBox_detected/180
             Ldep_avg_140PEpMeV_MBox_detected = nPE_140_MBox_detected/140
