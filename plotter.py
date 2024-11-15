@@ -58,7 +58,7 @@ class Plotter:
         self.event.Prev()
         self.Collect(dQthreshold)
 
-    def Draw(self, axis='yz', value='time', energy= 'GeV', markerSize=0.2, cmap='jet', vmax=2000):
+    def Draw(self, axis='yz', value='time', energy= 'GeV', markerSize=3, cmap='jet', vmax=2000):
         # particle, timing, dE/dx
         mapping = {'x': self.xx, 'y': self.yy, 'z': self.zz}
 
@@ -78,7 +78,8 @@ class Plotter:
             if energy == 'GeV':
                 plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
             elif energy == 'MeV':
-                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=np.divide(self.ee, self.ll), cmap=cmap, vmax=4, s=markerSize)
+                #plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=np.divide(self.ee, self.ll), cmap=cmap, vmax=4, s=markerSize)
+                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
             cb_ax.set_xlabel('MeV/cm')
 
 
@@ -97,8 +98,6 @@ class Plotter:
                 #ax.set_ylim(-1, 1.5)
                 #ax.set_xlim(-1, 1.5)
                 #interval = 0.1
-                xpos = -0.95
-                ypos = 1.4
                 # Debug neutron depo
                 #ax.set_ylim(-200, 200)
                 #ax.set_xlim(-200, 200)
@@ -106,9 +105,15 @@ class Plotter:
                 #xpos = -195
                 #ypos = 190
                 # n-capture scale
-                ax.set_ylim(-0.3, 0.3)
-                ax.set_xlim(-0.3, 0.3)
-                interval = 0.024
+                #xpos = -0.45
+                #ypos = 0.4
+                #ax.set_ylim(-0.5, 0.5)
+                #ax.set_xlim(-0.5, 0.5)
+                xpos = -0.95
+                ypos = 0.9
+                ax.set_ylim(-1, 1)
+                ax.set_xlim(-1, 0.5)
+                interval = 0.1
             else:
                 print("Unknown event generator!")
                 sys.exit()

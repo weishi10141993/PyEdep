@@ -450,7 +450,7 @@ class Event:
                 self.info['L_depoList_MBox_avg_100PEpMeV'][0] += depoL_MBox_100PEpMeV
                 self.info['L_depoList_MBox_avg_35PEpMeV'][0]  += depoL_MBox_35PEpMeV
                 self.info['N_parList'][0] += 1
-            elif (pdg == 2212):
+            elif (pdg == 2212): # proton
                 self.info['E_avail'] += KE
                 self.info['E_availList'][1] += KE
                 self.info['E_depoList'][1]       += depoE
@@ -473,7 +473,7 @@ class Event:
                 self.info['L_depoList_MBox_avg_100PEpMeV'][1] += depoL_MBox_100PEpMeV
                 self.info['L_depoList_MBox_avg_35PEpMeV'][1]  += depoL_MBox_35PEpMeV
                 self.info['N_parList'][1] += 1
-            elif (pdg == 2112):
+            elif (pdg == 2112): # neutron
                 self.info['E_avail'] += KE
                 self.info['E_availList'][2] += KE
                 self.info['E_depoList'][2]       += depoE
@@ -496,7 +496,7 @@ class Event:
                 self.info['L_depoList_MBox_avg_100PEpMeV'][2] += depoL_MBox_100PEpMeV
                 self.info['L_depoList_MBox_avg_35PEpMeV'][2]  += depoL_MBox_35PEpMeV
                 self.info['N_parList'][2] += 1
-            elif (pdg in [211, -211]):
+            elif (pdg in [211, -211]): #pi+/-
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][3] += (KE + mass)
                 self.info['E_depoList'][3]       += depoE
@@ -519,7 +519,7 @@ class Event:
                 self.info['L_depoList_MBox_avg_100PEpMeV'][3] += depoL_MBox_100PEpMeV
                 self.info['L_depoList_MBox_avg_35PEpMeV'][3]  += depoL_MBox_35PEpMeV
                 self.info['N_parList'][3] += 1
-            elif (pdg == 111):
+            elif (pdg == 111): #pi0
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][4] += (KE + mass)
                 self.info['E_depoList'][4]       += depoE
@@ -542,7 +542,7 @@ class Event:
                 self.info['L_depoList_MBox_avg_100PEpMeV'][4] += depoL_MBox_100PEpMeV
                 self.info['L_depoList_MBox_avg_35PEpMeV'][4]  += depoL_MBox_35PEpMeV
                 self.info['N_parList'][4] += 1
-            elif (pdg == 22):
+            elif (pdg == 22): #gamma
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][5] += (KE + mass)
                 self.info['E_depoList'][5]       += depoE
@@ -565,7 +565,7 @@ class Event:
                 self.info['L_depoList_MBox_avg_100PEpMeV'][5] += depoL_MBox_100PEpMeV
                 self.info['L_depoList_MBox_avg_35PEpMeV'][5]  += depoL_MBox_35PEpMeV
                 self.info['N_parList'][5] += 1
-            elif (pdg == 1000020040):
+            elif (pdg == 1000020040): #alpha
                 self.info['E_avail'] += KE
                 self.info['E_availList'][6] += KE
                 self.info['E_depoList'][6]       += depoE
@@ -645,28 +645,35 @@ class Event:
         self.PrintTracks(trkId, trkId+1)
         track = self.tracks[trkId]
         children = track.association['children']
-        print(f'children: {children}')
+        #print(f'children: {children}')
         for childId in children:
             child = self.tracks[childId]
             name = child.GetName()
             mom = child.GetInitialMomentum()
             KE = mom.E() - mom.M()
-            print(f"{childId} {name}: {KE:.2f} MeV, {child.energy['depoTotal']:.2f} MeV, {child.association['children']}")
+            #print(f"{childId} {name}: {KE:.2f} MeV, {child.energy['depoTotal']:.2f} MeV, {child.association['children']}")
 
-        print(f"{track.Points.size()} points stored in track {trkId}")
+        #print(f"{track.Points.size()} points stored in track {trkId}")
         for point in track.Points:
             x = point.GetPosition().X()
             y = point.GetPosition().Y()
             z = point.GetPosition().Z()
             t = point.GetPosition().T()
-            print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
+            #print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
+
+        #print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
+        return t # last point is capture time
 
     # ------------------------
     def PrintTracks(self, start=0, stop=-1):
         # print(f"{self.tracks.size} trajectories stored", )
-        print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'selfDepo':>10}{'allDepo':>10}")
-        print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}{'[MeV]':>10}")
-        print('-'*(8+8+6+6+6+10+10+10))
+
+        #print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'selfDepo':>10}{'allDepo':>10}")
+        #print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}{'[MeV]':>10}")
+        #print('-'*(8+8+6+6+6+10+10+10))
+
+        neutrontrkId = -1
+        neutronKE = -1
 
         for track in self.tracks[start:stop]:
             pdg = track.GetPDGCode()
@@ -679,9 +686,14 @@ class Event:
             ancestor = track.association['ancestor']
             selfDepo = track.energy['depoTotal']
             allDepo = self.GetEnergyDepoWithDesendents(trkId)
-            print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{selfDepo:>10.2f}{allDepo:>10.2f}")
+            #print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{selfDepo:>10.2f}{allDepo:>10.2f}")
+            # Take the last neutron and check its KE and capture time
+            if pdg == 2112:
+                neutrontrkId = trkId
+                neutronKE = KE
 
-        print('-'*(8+8+6+6+6+10+10+10))
+        #print('-'*(8+8+6+6+6+10+10+10))
+        return [neutrontrkId, neutronKE]
 
 
     # ------------------------
