@@ -55,7 +55,7 @@ class Event:
         self.ReadVertex()
         self.ReadTracks()
         self.ReadEnergyDepo('SimEnergyDeposit')
-
+        
         self.info = {}
         self.info['Event_ID'] = self.currentEntry
         self.info['E_nu'] = 0
@@ -67,38 +67,14 @@ class Event:
         self.info['Q_depoTotal'] = 0
         self.info['Q_depoTotal_th_75keV'] = 0
         self.info['Q_depoTotal_th_500keV'] = 0
-        self.info['Q_depoTotal_MBox'] = 0
-        self.info['Q_depoTotal_MBox_th_75keV'] = 0
-        self.info['Q_depoTotal_MBox_th_500keV'] = 0
-        self.info['L_depoTotal_avg_220PEpMeV'] = 0
-        self.info['L_depoTotal_avg_180PEpMeV'] = 0
-        self.info['L_depoTotal_avg_140PEpMeV'] = 0
-        self.info['L_depoTotal_avg_100PEpMeV'] = 0
-        self.info['L_depoTotal_avg_35PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_220PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_180PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_140PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_100PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_35PEpMeV'] = 0
+        self.info['L_depoTotal_avg_APEX_WP'] = 0
         self.info['E_depoList'] = np.zeros(8) # lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.info['E_depoList_track'] = np.zeros(8)
         self.info['Q_depoList']               = np.zeros(8)
         self.info['Q_depoList_th_75keV']      = np.zeros(8)
         self.info['Q_depoList_th_500keV']     = np.zeros(8)
         self.info['Q_depoList_dots_th_75keV'] = np.zeros(8)
-        self.info['Q_depoList_MBox']           = np.zeros(8)
-        self.info['Q_depoList_MBox_th_75keV']  = np.zeros(8)
-        self.info['Q_depoList_MBox_th_500keV'] = np.zeros(8)
-        self.info['L_depoList_avg_220PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_avg_180PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_avg_140PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_avg_100PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_avg_35PEpMeV']  = np.zeros(8)
-        self.info['L_depoList_MBox_avg_220PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_180PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_140PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_100PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_35PEpMeV']  = np.zeros(8)
+        self.info['L_depoList_avg_APEX_WP'] = np.zeros(8)
         self.info['N_parList'] = np.zeros(8) # lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.info['nu_pdg'] = 0
         self.info['nu_xs'] = self.vertex.GetCrossSection()
@@ -182,21 +158,9 @@ class Event:
             self.tracks[i].length = {}
             self.tracks[i].energy['depoTotal'] = 0
             self.tracks[i].energy['depoTotal_charge'] = 0
-            self.tracks[i].energy['depoTotal_charge_MBox'] = 0
             self.tracks[i].energy['depoTotal_charge_th_75keV'] = 0
-            self.tracks[i].energy['depoTotal_charge_MBox_th_75keV'] = 0
             self.tracks[i].energy['depoTotal_charge_th_500keV'] = 0
-            self.tracks[i].energy['depoTotal_charge_MBox_th_500keV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_220PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_220PEpMeV_MBox'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_180PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_180PEpMeV_MBox'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_140PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_140PEpMeV_MBox'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_100PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_100PEpMeV_MBox'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_35PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_35PEpMeV_MBox'] = 0
+            self.tracks[i].energy['depoTotal_light_avg_APEX_WP'] = 0
             self.tracks[i].length['selfDepo'] = 0
             self.tracks[i].association['depoList'] = []
             self.tracks[i].association['children'] = []
@@ -211,6 +175,17 @@ class Event:
                 track.association['ancestor'] = parId
                 parId = self.tracks[parId].GetParentId()
 
+    # Function to sample light yield from the histogram
+    def SampledLYFromHist(self):
+        # Open the ROOT file and retrieve the histogram
+        file = TFile('ly_histogram.root')
+        hist = file.Get('ly_hist')
+        cumulative_hist = hist.GetCumulative() # Create a cumulative distribution from the histogram (cumulative sum of entries)
+        rand_num = random.uniform(0, cumulative_hist.GetMaximum()) # Generate a random number between 0 and the maximum value of the cumulative histogram
+        bin = cumulative_hist.FindBin(rand_num) # Find the bin corresponding to the random number
+        sampled_light_yield = hist.GetBinCenter(bin) # Get the light yield value corresponding to this bin
+        return sampled_light_yield
+    
     # ------------------------
     def ReadEnergyDepo(self, detName):
         self.depos = np.array(self.event.SegmentDetectors[detName])
@@ -226,82 +201,28 @@ class Event:
             edep = depo.GetEnergyDeposit()
             trkLength = depo.GetTrackLength() *mm2cm
             Qdep = self.ChargeBirksLaw(edep, trkLength)
-            Qdep_MBox = self.ChargeModifiedBoxModel(edep, trkLength) # Modified Box Model
             track = self.tracks[trkId]
             track.association['depoList'].append(i)
             track.energy['depoTotal'] += edep
             track.energy['depoTotal_charge'] += Qdep
-            track.energy['depoTotal_charge_MBox'] += Qdep_MBox
             track.length['selfDepo'] += trkLength
             if Qdep > 0.075: track.energy['depoTotal_charge_th_75keV'] += Qdep
             if Qdep > 0.5: track.energy['depoTotal_charge_th_500keV'] += Qdep
-            if Qdep_MBox > 0.075: track.energy['depoTotal_charge_MBox_th_75keV'] += Qdep_MBox
-            if Qdep_MBox > 0.5: track.energy['depoTotal_charge_MBox_th_500keV'] += Qdep_MBox
 
             # Light deposit
             # edepSecond = depo.GetSecondaryDeposit()
             # Ideally this should be the light dep
             # how the light yield is actually derived: 25k photons / MeV are simualted and 220 on average are detected
-            # the overall photon collection efficiency (PCE) is
-            #    220/25000=0.88% PCE
-            #    180/25000=0.72% PCE
-            #    140/25000=0.56% PCE
-            #    100/25000=0.4% PCE
-            #    35/25000=0.14% PCE
-
-            #    220/21622=1.0% PCE
-            #    180/21622=0.83% PCE
-            #    140/21622=0.65% PCE
-            #    100/21622=0.46% PCE
-            #    35/21622=0.16% PCE
+            # the overall photon collection efficiency (PCE) is  PCE = light_yield_number / 21622
             # (dL/W_ph)*PCE = (dL/19.5eV)*PCE = number of photons (taking into account Birks model)
             Ldep = edep - Qdep
-            Ldep_MBox = edep - Qdep_MBox
-            nPE_220 = (Ldep*1000000/19.5)*0.01
-            nPE_180 = (Ldep*1000000/19.5)*0.0083
-            nPE_140 = (Ldep*1000000/19.5)*0.0065
-            nPE_100 = (Ldep*1000000/19.5)*0.0046
-            nPE_35  = (Ldep*1000000/19.5)*0.0016
-            nPE_220_MBox = Ldep_MBox*220
-            nPE_180_MBox = Ldep_MBox*180
-            nPE_140_MBox = Ldep_MBox*140
-            nPE_100_MBox = Ldep_MBox*100
-            nPE_35_MBox  = Ldep_MBox*35
-            nPE_220_detected = random.gauss(nPE_220, math.sqrt(nPE_220))
-            nPE_180_detected = random.gauss(nPE_180, math.sqrt(nPE_180))
-            nPE_140_detected = random.gauss(nPE_140, math.sqrt(nPE_140))
-            nPE_100_detected = random.gauss(nPE_100, math.sqrt(nPE_100))
-            nPE_35_detected  = random.gauss(nPE_35, math.sqrt(nPE_35))
-            nPE_220_MBox_detected = random.gauss(nPE_220_MBox, math.sqrt(nPE_220_MBox))
-            nPE_180_MBox_detected = random.gauss(nPE_180_MBox, math.sqrt(nPE_180_MBox))
-            nPE_140_MBox_detected = random.gauss(nPE_140_MBox, math.sqrt(nPE_140_MBox))
-            nPE_100_MBox_detected = random.gauss(nPE_100_MBox, math.sqrt(nPE_100_MBox))
-            nPE_35_MBox_detected  = random.gauss(nPE_35_MBox,  math.sqrt(nPE_35_MBox))
-            Ldep_avg_220PEpMeV_detected = nPE_220_detected*19.5/1000000/0.01 # MeV
-            Ldep_avg_180PEpMeV_detected = nPE_180_detected*19.5/1000000/0.0083
-            Ldep_avg_140PEpMeV_detected = nPE_140_detected*19.5/1000000/0.0065
-            Ldep_avg_100PEpMeV_detected = nPE_100_detected*19.5/1000000/0.0046
-            Ldep_avg_35PEpMeV_detected  = nPE_35_detected*19.5/1000000/0.0016
-            Ldep_avg_220PEpMeV_MBox_detected = nPE_220_MBox_detected/220
-            Ldep_avg_180PEpMeV_MBox_detected = nPE_180_MBox_detected/180
-            Ldep_avg_140PEpMeV_MBox_detected = nPE_140_MBox_detected/140
-            Ldep_avg_100PEpMeV_MBox_detected = nPE_100_MBox_detected/100
-            Ldep_avg_35PEpMeV_MBox_detected  = nPE_35_MBox_detected/35
-
-            track.energy['depoTotal_light_avg_220PEpMeV'] += Ldep_avg_220PEpMeV_detected
-            track.energy['depoTotal_light_avg_180PEpMeV'] += Ldep_avg_180PEpMeV_detected
-            track.energy['depoTotal_light_avg_140PEpMeV'] += Ldep_avg_140PEpMeV_detected
-            track.energy['depoTotal_light_avg_100PEpMeV'] += Ldep_avg_100PEpMeV_detected
-            track.energy['depoTotal_light_avg_35PEpMeV']  += Ldep_avg_35PEpMeV_detected
-
-            track.energy['depoTotal_light_avg_220PEpMeV_MBox'] += Ldep_avg_220PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_180PEpMeV_MBox'] += Ldep_avg_180PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_140PEpMeV_MBox'] += Ldep_avg_140PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_100PEpMeV_MBox'] += Ldep_avg_100PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_35PEpMeV_MBox']  += Ldep_avg_35PEpMeV_MBox_detected
-
-        # E_tot = np.sum([depo.GetEnergyDeposit() for depo in self.depos])
-        # print('total deposit energy: ', E_tot)
+            ly_sampled = self.SampledLYFromHist()
+            PCE = ly_sampled/21622.0  
+            nPE_sampled = (Ldep*1000000/19.5)*PCE
+            nPE_detected = random.gauss(nPE_sampled, math.sqrt(nPE_sampled))
+            Ldep_avg_detected = nPE_detected*19.5/1000000/PCE
+            track.energy['depoTotal_light_avg_APEX_WP'] += Ldep_avg_detected
+ 
 
     # ------------------------
     def ChargeBirksLaw(self, edep, trkLength):
@@ -391,19 +312,7 @@ class Event:
             depoQ        = self.GetChargeDepoWithDesendents(trkId)[0]
             depoQ_75keV  = self.GetChargeDepoWithDesendents(trkId)[1]
             depoQ_500keV = self.GetChargeDepoWithDesendents(trkId)[2]
-            depoQ_MBox        = self.GetChargeMBoxDepoWithDesendents(trkId)[0]
-            depoQ_MBox_75keV  = self.GetChargeMBoxDepoWithDesendents(trkId)[1]
-            depoQ_MBox_500keV = self.GetChargeMBoxDepoWithDesendents(trkId)[2]
-            depoL_220PEpMeV = self.GetLightDepoWithDesendents(trkId)[0]
-            depoL_180PEpMeV = self.GetLightDepoWithDesendents(trkId)[1]
-            depoL_140PEpMeV = self.GetLightDepoWithDesendents(trkId)[2]
-            depoL_100PEpMeV = self.GetLightDepoWithDesendents(trkId)[3]
-            depoL_35PEpMeV  = self.GetLightDepoWithDesendents(trkId)[4]
-            depoL_MBox_220PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[0]
-            depoL_MBox_180PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[1]
-            depoL_MBox_140PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[2]
-            depoL_MBox_100PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[3]
-            depoL_MBox_35PEpMeV  = self.GetLightMBoxDepoWithDesendents(trkId)[4]
+            depoLY = self.GetLightDepoWithDesendents(trkId)[0]
             mom = particle.GetMomentum()
             mass = mom.M()
             KE = mom.E() - mass
@@ -413,19 +322,7 @@ class Event:
             self.info['Q_depoTotal_th_75keV'] += depoQ_75keV
             self.info['Q_depoTotal_th_500keV'] += depoQ_500keV
             self.info['Q_depoTotal_dots_th_75keV'] += depoQ_dots
-            self.info['Q_depoTotal_MBox'] += depoQ_MBox
-            self.info['Q_depoTotal_MBox_th_75keV'] += depoQ_MBox_75keV
-            self.info['Q_depoTotal_MBox_th_500keV'] += depoQ_MBox_500keV
-            self.info['L_depoTotal_avg_220PEpMeV'] += depoL_220PEpMeV
-            self.info['L_depoTotal_avg_180PEpMeV'] += depoL_180PEpMeV
-            self.info['L_depoTotal_avg_140PEpMeV'] += depoL_140PEpMeV
-            self.info['L_depoTotal_avg_100PEpMeV'] += depoL_100PEpMeV
-            self.info['L_depoTotal_avg_35PEpMeV']  += depoL_35PEpMeV
-            self.info['L_depoTotal_MBox_avg_220PEpMeV'] += depoL_MBox_220PEpMeV
-            self.info['L_depoTotal_MBox_avg_180PEpMeV'] += depoL_MBox_180PEpMeV
-            self.info['L_depoTotal_MBox_avg_140PEpMeV'] += depoL_MBox_140PEpMeV
-            self.info['L_depoTotal_MBox_avg_100PEpMeV'] += depoL_MBox_100PEpMeV
-            self.info['L_depoTotal_MBox_avg_35PEpMeV']  += depoL_MBox_35PEpMeV
+            self.info['L_depoTotal_avg_APEX_WP'] += depoLY
             # fill E_availList: lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
             if (pdg in [13, -13, 11, -11]):
                 self.info['E_avail'] += (KE + mass)
@@ -436,21 +333,9 @@ class Event:
                 self.info['Q_depoList_th_75keV'][0]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][0]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][0]  += depoQ_dots
-                self.info['Q_depoList_MBox'][0]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][0]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][0] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][0] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][0] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][0] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][0] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][0]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][0] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][0] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][0] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][0] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][0]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][0] += depoLY
                 self.info['N_parList'][0] += 1
-            elif (pdg == 2212): # proton
+            elif (pdg == 2212):
                 self.info['E_avail'] += KE
                 self.info['E_availList'][1] += KE
                 self.info['E_depoList'][1]       += depoE
@@ -459,21 +344,9 @@ class Event:
                 self.info['Q_depoList_th_75keV'][1]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][1]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][1]  += depoQ_dots
-                self.info['Q_depoList_MBox'][1]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][1]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][1] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][1] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][1] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][1] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][1] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][1]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][1] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][1] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][1] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][1] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][1]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][1] += depoLY
                 self.info['N_parList'][1] += 1
-            elif (pdg == 2112): # neutron
+            elif (pdg == 2112):
                 self.info['E_avail'] += KE
                 self.info['E_availList'][2] += KE
                 self.info['E_depoList'][2]       += depoE
@@ -482,21 +355,9 @@ class Event:
                 self.info['Q_depoList_th_75keV'][2]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][2]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][2]  += depoQ_dots
-                self.info['Q_depoList_MBox'][2]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][2]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][2] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][2] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][2] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][2] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][2] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][2]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][2] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][2] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][2] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][2] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][2]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][2] += depoLY
                 self.info['N_parList'][2] += 1
-            elif (pdg in [211, -211]): #pi+/-
+            elif (pdg in [211, -211]):
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][3] += (KE + mass)
                 self.info['E_depoList'][3]       += depoE
@@ -505,21 +366,9 @@ class Event:
                 self.info['Q_depoList_th_75keV'][3]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][3]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][3]  += depoQ_dots
-                self.info['Q_depoList_MBox'][3]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][3]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][3] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][3] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][3] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][3] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][3] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][3]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][3] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][3] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][3] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][3] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][3]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][3] += depoLY
                 self.info['N_parList'][3] += 1
-            elif (pdg == 111): #pi0
+            elif (pdg == 111):
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][4] += (KE + mass)
                 self.info['E_depoList'][4]       += depoE
@@ -528,21 +377,9 @@ class Event:
                 self.info['Q_depoList_th_75keV'][4]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][4]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][4]  += depoQ_dots
-                self.info['Q_depoList_MBox'][4]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][4]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][4] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][4] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][4] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][4] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][4] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][4]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][4] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][4] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][4] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][4] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][4]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][4] += depoLY
                 self.info['N_parList'][4] += 1
-            elif (pdg == 22): #gamma
+            elif (pdg == 22):
                 self.info['E_avail'] += (KE + mass)
                 self.info['E_availList'][5] += (KE + mass)
                 self.info['E_depoList'][5]       += depoE
@@ -551,21 +388,9 @@ class Event:
                 self.info['Q_depoList_th_75keV'][5]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][5]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][5]  += depoQ_dots
-                self.info['Q_depoList_MBox'][5]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][5]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][5] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][5] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][5] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][5] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][5] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][5] += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][5] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][5] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][5] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][5] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][5]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][5] += depoLY
                 self.info['N_parList'][5] += 1
-            elif (pdg == 1000020040): #alpha
+            elif (pdg == 1000020040):
                 self.info['E_avail'] += KE
                 self.info['E_availList'][6] += KE
                 self.info['E_depoList'][6]       += depoE
@@ -574,19 +399,7 @@ class Event:
                 self.info['Q_depoList_th_75keV'][6]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][6]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][6]  += depoQ_dots
-                self.info['Q_depoList_MBox'][6]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][6]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][6] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][6] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][6] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][6] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][6] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][6]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][6] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][6] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][6] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][6] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][6]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][6] += depoLY
                 self.info['N_parList'][6] += 1
             else:
                 self.info['E_avail'] += KE
@@ -597,37 +410,8 @@ class Event:
                 self.info['Q_depoList_th_75keV'][7]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][7]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][7]  += depoQ_dots
-                self.info['Q_depoList_MBox'][7]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][7]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][7] += depoQ_MBox_500keV
-                self.info['L_depoList_avg_220PEpMeV'][7] += depoL_220PEpMeV
-                self.info['L_depoList_avg_180PEpMeV'][7] += depoL_180PEpMeV
-                self.info['L_depoList_avg_140PEpMeV'][7] += depoL_140PEpMeV
-                self.info['L_depoList_avg_100PEpMeV'][7] += depoL_100PEpMeV
-                self.info['L_depoList_avg_35PEpMeV'][7]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][7] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][7] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][7] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][7] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][7]  += depoL_MBox_35PEpMeV
+                self.info['L_depoList_avg_APEX_WP'][7] += depoLY
                 self.info['N_parList'][7] += 1
-
-        # for track in self.tracks:
-        #     pdg = track.GetPDGCode()
-        #     depoE = track.energy['depoTotal']
-        #     if (pdg in [13, -13, 11, -11]):
-        #         self.info['E_depoList'][0] += depoE
-        #     elif (pdg == 2212):
-        #         self.info['E_depoList'][1] += depoE
-        #     elif (pdg == 2112):
-        #         self.info['E_depoList'][2] += depoE
-        #     elif (pdg in [211, -211]):
-        #         self.info['E_depoList'][3] += depoE
-        #     elif (pdg == 111):
-        #         self.info['E_depoList'][4] += depoE
-        #     else:
-        #         self.info['E_depoList'][5] += depoE
-
 
     # ------------------------
     def PrintDepo(self, i):
@@ -645,35 +429,28 @@ class Event:
         self.PrintTracks(trkId, trkId+1)
         track = self.tracks[trkId]
         children = track.association['children']
-        #print(f'children: {children}')
+        print(f'children: {children}')
         for childId in children:
             child = self.tracks[childId]
             name = child.GetName()
             mom = child.GetInitialMomentum()
             KE = mom.E() - mom.M()
-            #print(f"{childId} {name}: {KE:.2f} MeV, {child.energy['depoTotal']:.2f} MeV, {child.association['children']}")
+            print(f"{childId} {name}: {KE:.2f} MeV, {child.energy['depoTotal']:.2f} MeV, {child.association['children']}")
 
-        #print(f"{track.Points.size()} points stored in track {trkId}")
+        print(f"{track.Points.size()} points stored in track {trkId}")
         for point in track.Points:
             x = point.GetPosition().X()
             y = point.GetPosition().Y()
             z = point.GetPosition().Z()
             t = point.GetPosition().T()
-            #print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
-
-        #print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
-        return t # last point is capture time
+            print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
 
     # ------------------------
     def PrintTracks(self, start=0, stop=-1):
         # print(f"{self.tracks.size} trajectories stored", )
-
-        #print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'selfDepo':>10}{'allDepo':>10}")
-        #print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}{'[MeV]':>10}")
-        #print('-'*(8+8+6+6+6+10+10+10))
-
-        neutrontrkId = -1
-        neutronKE = -1
+        print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'selfDepo':>10}{'allDepo':>10}")
+        print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}{'[MeV]':>10}")
+        print('-'*(8+8+6+6+6+10+10+10))
 
         for track in self.tracks[start:stop]:
             pdg = track.GetPDGCode()
@@ -686,14 +463,9 @@ class Event:
             ancestor = track.association['ancestor']
             selfDepo = track.energy['depoTotal']
             allDepo = self.GetEnergyDepoWithDesendents(trkId)
-            #print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{selfDepo:>10.2f}{allDepo:>10.2f}")
-            # Take the last neutron and check its KE and capture time
-            if pdg == 2112:
-                neutrontrkId = trkId
-                neutronKE = KE
+            print(f"{pdg:>8d}{name:>8s}{trkId:>6d}{parId:>6d}{ancestor:>6d}{KE:>10.2f}{selfDepo:>10.2f}{allDepo:>10.2f}")
 
-        #print('-'*(8+8+6+6+6+10+10+10))
-        return [neutrontrkId, neutronKE]
+        print('-'*(8+8+6+6+6+10+10+10))
 
 
     # ------------------------
@@ -735,60 +507,14 @@ class Event:
         return [charge, charge_75keV, charge_500keV]
 
     #-------------------------
-    def GetChargeMBoxDepoWithDesendents(self, trkId):
-        track = self.tracks[trkId]
-        charge = track.energy['depoTotal_charge_MBox']
-        charge_75keV = track.energy['depoTotal_charge_MBox_th_75keV']
-        charge_500keV = track.energy['depoTotal_charge_MBox_th_500keV']
-        children = track.association['children']
-        for childId in children:
-            charge += self.GetChargeMBoxDepoWithDesendents(childId)[0]
-            charge_75keV += self.GetChargeMBoxDepoWithDesendents(childId)[1]
-            charge_500keV += self.GetChargeMBoxDepoWithDesendents(childId)[2]
-        return [charge, charge_75keV, charge_500keV]
-
-    #-------------------------
     def GetLightDepoWithDesendents(self, trkId):
         track = self.tracks[trkId]
-        light_avg_220PEpMeV = track.energy['depoTotal_light_avg_220PEpMeV']
-        light_avg_180PEpMeV = track.energy['depoTotal_light_avg_180PEpMeV']
-        light_avg_140PEpMeV = track.energy['depoTotal_light_avg_140PEpMeV']
-        light_avg_100PEpMeV = track.energy['depoTotal_light_avg_100PEpMeV']
-        light_avg_35PEpMeV = track.energy['depoTotal_light_avg_35PEpMeV']
+        light_avg_APEX_WP = track.energy['depoTotal_light_avg_APEX_WP']
         children = track.association['children']
         for childId in children:
-            light_avg_220PEpMeV += self.GetLightDepoWithDesendents(childId)[0]
-            light_avg_180PEpMeV += self.GetLightDepoWithDesendents(childId)[1]
-            light_avg_140PEpMeV += self.GetLightDepoWithDesendents(childId)[2]
-            light_avg_100PEpMeV += self.GetLightDepoWithDesendents(childId)[3]
-            light_avg_35PEpMeV  += self.GetLightDepoWithDesendents(childId)[4]
-        return [light_avg_220PEpMeV, light_avg_180PEpMeV, light_avg_140PEpMeV, light_avg_100PEpMeV, light_avg_35PEpMeV]
-
-    #-------------------------
-    def GetLightMBoxDepoWithDesendents(self, trkId):
-        track = self.tracks[trkId]
-        light_avg_220PEpMeV = track.energy['depoTotal_light_avg_220PEpMeV_MBox']
-        light_avg_180PEpMeV = track.energy['depoTotal_light_avg_180PEpMeV_MBox']
-        light_avg_140PEpMeV = track.energy['depoTotal_light_avg_140PEpMeV_MBox']
-        light_avg_100PEpMeV = track.energy['depoTotal_light_avg_100PEpMeV_MBox']
-        light_avg_35PEpMeV  = track.energy['depoTotal_light_avg_35PEpMeV_MBox']
-        children = track.association['children']
-        for childId in children:
-            light_avg_220PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[0]
-            light_avg_180PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[1]
-            light_avg_140PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[2]
-            light_avg_100PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[3]
-            light_avg_35PEpMeV  += self.GetLightMBoxDepoWithDesendents(childId)[4]
-        return [light_avg_220PEpMeV, light_avg_180PEpMeV, light_avg_140PEpMeV, light_avg_100PEpMeV, light_avg_35PEpMeV]
-
-    #-------------------------
-    """def GetEnergyDepoWithAncestor(self, acId):
-        energy = 0
-        for track in self.tracks:
-            ancestor = track.association['ancestor']
-            if ancestor == acId:
-                energy += track.energy['depoTotal']
-        return energy"""
+            light_avg_APEX_WP += self.GetLightDepoWithDesendents(childId)[0]
+        
+        return light_avg_APEX_WP
 
     #-----------------------
     def GetEnuFromFileName(self):
