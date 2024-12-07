@@ -135,17 +135,21 @@ class Event:
             print("Marley events: assert info from file name")
 
     # ------------------------
-    def ReadVertex(self):
-           for vertex in self.event.Primaries:
+   def ReadVertex(self):
+    # 遍历 self.event.Primaries 并打印第一个 vertex 的属性
+    for vertex in self.event.Primaries:
         print(dir(vertex))  # 打印所有可用属性
         break
 
-        primaries = np.array(self.event.Primaries)
-        if (primaries.size != 1 and self.evgen == 'Genie'):
-            print("Number of primaries not equal to 1 (not neutrino vertex)!")
-            return
+    # 转换 self.event.Primaries 为 NumPy 数组
+    primaries = np.array(self.event.Primaries)
+    if (primaries.size != 1 and self.evgen == 'Genie'):
+        print("Number of primaries not equal to 1 (not neutrino vertex)!")
+        return
 
-        self.vertex = primaries[0]
+    # 设置 self.vertex
+    self.vertex = primaries[0]
+
 
 
     
