@@ -136,8 +136,10 @@ class Event:
 
     # ------------------------
     def ReadVertex(self):
-        print("Type of Primaries:", type(self.event.Primaries))  # 检查类型
-        print("Content of Primaries:", self.event.Primaries)    # 打印内容
+           for vertex in self.event.Primaries:
+        print(dir(vertex))  # 打印所有可用属性
+        break
+
         primaries = np.array(self.event.Primaries)
         if (primaries.size != 1 and self.evgen == 'Genie'):
             print("Number of primaries not equal to 1 (not neutrino vertex)!")
@@ -145,6 +147,8 @@ class Event:
 
         self.vertex = primaries[0]
 
+
+    
     #--------------------------
     def GetReaction(self):
         txt_list = self.vertex.GetReaction().split(';')
