@@ -1,4 +1,4 @@
-from event_stoneversion import Event
+from event import Event
 from plotter import Plotter
 import matplotlib
 import matplotlib.pyplot as plt
@@ -7,9 +7,9 @@ import numpy as np
 # Look at first 10 events
 n = 152000
 counter = 0
-event_stoneversion = Event("/storage/shared/frunshi/edep_nue_80.0MeV_1kevts.root", 'Marley')
+event = Event("/storage/shared/frunshi/edep_nue_80.0MeV_1kevts.root", 'Marley')
 #event = Event("/exp/dune/app/users/weishi/VDPDSAna/PNSCali/edep_gammas_6.1MeV_10kevts.root", 'Marley')
-p = Plotter(event_stoneversion)
+p = Plotter(event)
 
 print("Look at first", n, "events")
 
@@ -47,10 +47,10 @@ while counter < n:
     #event.PrintVertex()
     #event.PrintTracks(0, 10000)
     #event.PrintTrack(2)
-    if event_stoneversion.PrintTracks(0, 10000)[0] != -1:
+    if event.PrintTracks(0, 10000)[0] != -1:
         # capture
         #print("neutron KE: ", event.PrintTracks(0, 10000)[1], ", neutron trkid: ", event.PrintTracks(0, 10000)[0])
-        neutron_capture_time = np.concatenate(( neutron_capture_time, np.array( [event_stoneversion.PrintTrack(event_stoneversion.PrintTracks(0, 10000)[0])] ) ))
+        neutron_capture_time = np.concatenate(( neutron_capture_time, np.array( [event.PrintTrack(event.PrintTracks(0, 10000)[0])] ) ))
 
     p.Next(0) # dQ threshold
 
