@@ -79,7 +79,7 @@ class Plotter:
                 plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
             elif energy == 'MeV':
                 #plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=np.divide(self.ee, self.ll), cmap=cmap, vmax=4, s=markerSize)
-                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
+                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=2.5, s=markerSize)
             cb_ax.set_xlabel('MeV/cm')
 
 
