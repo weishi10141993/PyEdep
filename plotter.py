@@ -208,6 +208,20 @@ class Plotter:
 
         return [max_edep_dr*100, max_edep_dt] #cm, ns
 
+    def evt_containment(self, dQthreshold): # per evt edep max distance from origin
+        nedeps = len(self.tt)
+        edep_max_distance = 0
+        for iedep in range(nedeps):
+            if self.ee[iedep] < dQthreshold:
+                pass
+            else:
+                # unit m
+                temp_edep_max_distance = math.sqrt(self.xx[iedep]*self.xx[iedep] + self.yy[iedep]*self.yy[iedep] + self.zz[iedep]*self.zz[iedep])
+                if temp_edep_max_distance > edep_max_distance:
+                    edep_max_distance = temp_edep_max_distance
+
+        return edep_max_distance #m
+
     #---------------------------------------------
     def DrawROOT(self, dim2d='yz', markerSize=0.2):
         import ROOT

@@ -65,25 +65,21 @@ class Event:
         self.info['E_depoTotal_track'] = 0
         self.info['Q_depoTotal_dots_th_75keV'] = 0
         self.info['E_depoTotal_no_ncap_depo'] = 0
+        self.info['E_depoTotal_in30cmnuvtx'] = 0
         self.info['Q_depoTotal'] = 0
         self.info['Q_depoTotal_th_75keV'] = 0
         self.info['Q_depoTotal_th_500keV'] = 0
-        self.info['Q_depoTotal_MBox'] = 0
-        self.info['Q_depoTotal_MBox_th_75keV'] = 0
-        self.info['Q_depoTotal_MBox_th_500keV'] = 0
         self.info['Q_depoTotal_no_ncap_depo'] = 0
         self.info['Q_depoTotal_th_75keV_no_ncap_depo'] = 0
         self.info['Q_depoTotal_th_500keV_no_ncap_depo'] = 0
+        self.info['Q_depoTotal_in30cmnuvtx'] = 0
+        self.info['Q_depoTotal_th_75keV_in30cmnuvtx'] = 0
+        self.info['Q_depoTotal_th_500keV_in30cmnuvtx'] = 0
         self.info['L_depoTotal_avg_220PEpMeV'] = 0
         self.info['L_depoTotal_avg_180PEpMeV'] = 0
         self.info['L_depoTotal_avg_140PEpMeV'] = 0
         self.info['L_depoTotal_avg_100PEpMeV'] = 0
         self.info['L_depoTotal_avg_35PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_220PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_180PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_140PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_100PEpMeV'] = 0
-        self.info['L_depoTotal_MBox_avg_35PEpMeV'] = 0
         self.info['L_depoTotal_avg_220PEpMeV_no_ncap_depo'] = 0
         self.info['L_depoTotal_avg_180PEpMeV_no_ncap_depo'] = 0
         self.info['L_depoTotal_avg_140PEpMeV_no_ncap_depo'] = 0
@@ -92,26 +88,22 @@ class Event:
         self.info['E_depoList'] = np.zeros(8) # lepton, proton, neutron, pi+-, pi0, gamma, alpha, others.
         self.info['E_depoList_track'] = np.zeros(8)
         self.info['E_depoList_no_ncap_depo'] = np.zeros(8)
+        self.info['E_depoList_in30cmnuvtx']  = np.zeros(8)
         self.info['Q_depoList']               = np.zeros(8)
         self.info['Q_depoList_th_75keV']      = np.zeros(8)
         self.info['Q_depoList_th_500keV']     = np.zeros(8)
         self.info['Q_depoList_dots_th_75keV'] = np.zeros(8)
-        self.info['Q_depoList_MBox']           = np.zeros(8)
-        self.info['Q_depoList_MBox_th_75keV']  = np.zeros(8)
-        self.info['Q_depoList_MBox_th_500keV'] = np.zeros(8)
         self.info['Q_depoList_no_ncap_depo']               = np.zeros(8)
         self.info['Q_depoList_th_75keV_no_ncap_depo']      = np.zeros(8)
         self.info['Q_depoList_th_500keV_no_ncap_depo']     = np.zeros(8)
+        self.info['Q_depoList_in30cmnuvtx']                = np.zeros(8)
+        self.info['Q_depoList_th_75keV_in30cmnuvtx']       = np.zeros(8)
+        self.info['Q_depoList_th_500keV_in30cmnuvtx']      = np.zeros(8)
         self.info['L_depoList_avg_220PEpMeV'] = np.zeros(8)
         self.info['L_depoList_avg_180PEpMeV'] = np.zeros(8)
         self.info['L_depoList_avg_140PEpMeV'] = np.zeros(8)
         self.info['L_depoList_avg_100PEpMeV'] = np.zeros(8)
         self.info['L_depoList_avg_35PEpMeV']  = np.zeros(8)
-        self.info['L_depoList_MBox_avg_220PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_180PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_140PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_100PEpMeV'] = np.zeros(8)
-        self.info['L_depoList_MBox_avg_35PEpMeV']  = np.zeros(8)
         self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'] = np.zeros(8)
         self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'] = np.zeros(8)
         self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'] = np.zeros(8)
@@ -200,29 +192,25 @@ class Event:
             self.tracks[i].length = {}
             self.tracks[i].energy['depoTotal'] = 0
             self.tracks[i].energy['depoTotal_no_ncap_depo'] = 0
+            self.tracks[i].energy['depoTotal_edepoin30cm'] = 0
             self.tracks[i].energy['depoTotal_charge'] = 0
-            self.tracks[i].energy['depoTotal_charge_MBox'] = 0
             self.tracks[i].energy['depoTotal_charge_no_ncap_depo'] = 0
+            self.tracks[i].energy['depoTotal_charge_edepoin30cm'] = 0
             self.tracks[i].energy['depoTotal_charge_th_75keV'] = 0
-            self.tracks[i].energy['depoTotal_charge_MBox_th_75keV'] = 0
             self.tracks[i].energy['depoTotal_charge_th_75keV_no_ncap_depo'] = 0
+            self.tracks[i].energy['depoTotal_charge_th_75keV_edepoin30cm'] = 0
             self.tracks[i].energy['depoTotal_charge_th_500keV'] = 0
-            self.tracks[i].energy['depoTotal_charge_MBox_th_500keV'] = 0
             self.tracks[i].energy['depoTotal_charge_th_500keV_no_ncap_depo'] = 0
+            self.tracks[i].energy['depoTotal_charge_th_500keV_edepoin30cm'] = 0
             self.tracks[i].energy['depoTotal_light_avg_220PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_220PEpMeV_MBox'] = 0
             self.tracks[i].energy['depoTotal_light_avg_220PEpMeV_exclude_ncap_edepo'] = 0
             self.tracks[i].energy['depoTotal_light_avg_180PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_180PEpMeV_MBox'] = 0
             self.tracks[i].energy['depoTotal_light_avg_180PEpMeV_exclude_ncap_edepo'] = 0
             self.tracks[i].energy['depoTotal_light_avg_140PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_140PEpMeV_MBox'] = 0
             self.tracks[i].energy['depoTotal_light_avg_140PEpMeV_exclude_ncap_edepo'] = 0
             self.tracks[i].energy['depoTotal_light_avg_100PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_100PEpMeV_MBox'] = 0
             self.tracks[i].energy['depoTotal_light_avg_100PEpMeV_exclude_ncap_edepo'] = 0
             self.tracks[i].energy['depoTotal_light_avg_35PEpMeV'] = 0
-            self.tracks[i].energy['depoTotal_light_avg_35PEpMeV_MBox'] = 0
             self.tracks[i].energy['depoTotal_light_avg_35PEpMeV_exclude_ncap_edepo'] = 0
             self.tracks[i].length['selfDepo'] = 0
             #self.tracks[i].length['selfDepo_no_ncap_depo'] = 0
@@ -253,6 +241,9 @@ class Event:
         for i, depo in enumerate(self.depos):
             trkId = depo.Contrib[0]
             edep = depo.GetEnergyDeposit()
+            edepx = (depo.GetStart().X() + depo.GetStop().X()) / 2 * mm2cm
+            edepy = (depo.GetStart().Y() + depo.GetStop().Y()) / 2 * mm2cm
+            edepz = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2cm
             trkLength = depo.GetTrackLength() *mm2cm
             Qdep = self.ChargeBirksLaw(edep, trkLength)
             Qdep_MBox = self.ChargeModifiedBoxModel(edep, trkLength) # Modified Box Model
@@ -260,12 +251,9 @@ class Event:
             track.association['depoList'].append(i)
             track.energy['depoTotal'] += edep
             track.energy['depoTotal_charge'] += Qdep
-            track.energy['depoTotal_charge_MBox'] += Qdep_MBox
             track.length['selfDepo'] += trkLength
             if Qdep > 0.075: track.energy['depoTotal_charge_th_75keV'] += Qdep
             if Qdep > 0.5: track.energy['depoTotal_charge_th_500keV'] += Qdep
-            if Qdep_MBox > 0.075: track.energy['depoTotal_charge_MBox_th_75keV'] += Qdep_MBox
-            if Qdep_MBox > 0.5: track.energy['depoTotal_charge_MBox_th_500keV'] += Qdep_MBox
 
             # Light deposit
             # edepSecond = depo.GetSecondaryDeposit()
@@ -293,23 +281,11 @@ class Event:
             nPE_100 = (Ldep*1000000/19.5)*0.0046
             nPE_35  = (Ldep*1000000/19.5)*0.0016
 
-            nPE_220_MBox = Ldep_MBox*220
-            nPE_180_MBox = Ldep_MBox*180
-            nPE_140_MBox = Ldep_MBox*140
-            nPE_100_MBox = Ldep_MBox*100
-            nPE_35_MBox  = Ldep_MBox*35
-
             nPE_220_detected = random.gauss(nPE_220, math.sqrt(nPE_220))
             nPE_180_detected = random.gauss(nPE_180, math.sqrt(nPE_180))
             nPE_140_detected = random.gauss(nPE_140, math.sqrt(nPE_140))
             nPE_100_detected = random.gauss(nPE_100, math.sqrt(nPE_100))
             nPE_35_detected  = random.gauss(nPE_35, math.sqrt(nPE_35))
-
-            nPE_220_MBox_detected = random.gauss(nPE_220_MBox, math.sqrt(nPE_220_MBox))
-            nPE_180_MBox_detected = random.gauss(nPE_180_MBox, math.sqrt(nPE_180_MBox))
-            nPE_140_MBox_detected = random.gauss(nPE_140_MBox, math.sqrt(nPE_140_MBox))
-            nPE_100_MBox_detected = random.gauss(nPE_100_MBox, math.sqrt(nPE_100_MBox))
-            nPE_35_MBox_detected  = random.gauss(nPE_35_MBox,  math.sqrt(nPE_35_MBox))
 
             Ldep_avg_220PEpMeV_detected = nPE_220_detected*19.5/1000000/0.01 # MeV
             Ldep_avg_180PEpMeV_detected = nPE_180_detected*19.5/1000000/0.0083
@@ -317,53 +293,42 @@ class Event:
             Ldep_avg_100PEpMeV_detected = nPE_100_detected*19.5/1000000/0.0046
             Ldep_avg_35PEpMeV_detected  = nPE_35_detected*19.5/1000000/0.0016
 
-            Ldep_avg_220PEpMeV_MBox_detected = nPE_220_MBox_detected/220
-            Ldep_avg_180PEpMeV_MBox_detected = nPE_180_MBox_detected/180
-            Ldep_avg_140PEpMeV_MBox_detected = nPE_140_MBox_detected/140
-            Ldep_avg_100PEpMeV_MBox_detected = nPE_100_MBox_detected/100
-            Ldep_avg_35PEpMeV_MBox_detected  = nPE_35_MBox_detected/35
-
             track.energy['depoTotal_light_avg_220PEpMeV'] += Ldep_avg_220PEpMeV_detected
             track.energy['depoTotal_light_avg_180PEpMeV'] += Ldep_avg_180PEpMeV_detected
             track.energy['depoTotal_light_avg_140PEpMeV'] += Ldep_avg_140PEpMeV_detected
             track.energy['depoTotal_light_avg_100PEpMeV'] += Ldep_avg_100PEpMeV_detected
             track.energy['depoTotal_light_avg_35PEpMeV']  += Ldep_avg_35PEpMeV_detected
 
-            track.energy['depoTotal_light_avg_220PEpMeV_MBox'] += Ldep_avg_220PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_180PEpMeV_MBox'] += Ldep_avg_180PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_140PEpMeV_MBox'] += Ldep_avg_140PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_100PEpMeV_MBox'] += Ldep_avg_100PEpMeV_MBox_detected
-            track.energy['depoTotal_light_avg_35PEpMeV_MBox']  += Ldep_avg_35PEpMeV_MBox_detected
-
             ####################################
             # Exclude neutron capture e deposits
             ####################################
             if self.EdepoFromNeutronCap(trkId):
                 # skip this edepo for Q and L calculation
-                continue
-                # if the edepo is from neutron cap, then set this track e to zero, can't detect
-                #track.energy['depoTotal_light_avg_220PEpMeV'] = 0
-                #track.energy['depoTotal_light_avg_180PEpMeV'] = 0
-                #track.energy['depoTotal_light_avg_140PEpMeV'] = 0
-                #track.energy['depoTotal_light_avg_100PEpMeV'] = 0
-                #track.energy['depoTotal_light_avg_35PEpMeV']  = 0
+                pass
+            else:
+                track.energy['depoTotal_light_avg_220PEpMeV_exclude_ncap_edepo'] += Ldep_avg_220PEpMeV_detected
+                track.energy['depoTotal_light_avg_180PEpMeV_exclude_ncap_edepo'] += Ldep_avg_180PEpMeV_detected
+                track.energy['depoTotal_light_avg_140PEpMeV_exclude_ncap_edepo'] += Ldep_avg_140PEpMeV_detected
+                track.energy['depoTotal_light_avg_100PEpMeV_exclude_ncap_edepo'] += Ldep_avg_100PEpMeV_detected
+                track.energy['depoTotal_light_avg_35PEpMeV_exclude_ncap_edepo']  += Ldep_avg_35PEpMeV_detected
 
-                #track.energy['depoTotal'] = 0
-                #track.energy['depoTotal_charge'] = 0
-                #if Qdep > 0.075: track.energy['depoTotal_charge_th_75keV'] = 0
-                #if Qdep > 0.5: track.energy['depoTotal_charge_th_500keV'] = 0
+                track.energy['depoTotal_no_ncap_depo'] += edep
+                track.energy['depoTotal_charge_no_ncap_depo'] += Qdep
+                if Qdep > 0.075: track.energy['depoTotal_charge_th_75keV_no_ncap_depo'] += Qdep
+                if Qdep > 0.5: track.energy['depoTotal_charge_th_500keV_no_ncap_depo'] += Qdep
 
+            ######################################################
+            # Exclude deposits more than 30cm from neutrino vertex
+            ######################################################
+            if math.sqrt(edepx*edepx + edepy*edepy + edepz*edepz) <= 30: #30cm
+                track.energy['depoTotal_edepoin30cm'] += edep
+                track.energy['depoTotal_charge_edepoin30cm'] += Qdep
+                if Qdep > 0.075: track.energy['depoTotal_charge_th_75keV_edepoin30cm'] += Qdep
+                if Qdep > 0.5: track.energy['depoTotal_charge_th_500keV_edepoin30cm'] += Qdep
+            else:
+                # do nothing
+                pass
 
-            track.energy['depoTotal_light_avg_220PEpMeV_exclude_ncap_edepo'] += Ldep_avg_220PEpMeV_detected
-            track.energy['depoTotal_light_avg_180PEpMeV_exclude_ncap_edepo'] += Ldep_avg_180PEpMeV_detected
-            track.energy['depoTotal_light_avg_140PEpMeV_exclude_ncap_edepo'] += Ldep_avg_140PEpMeV_detected
-            track.energy['depoTotal_light_avg_100PEpMeV_exclude_ncap_edepo'] += Ldep_avg_100PEpMeV_detected
-            track.energy['depoTotal_light_avg_35PEpMeV_exclude_ncap_edepo']  += Ldep_avg_35PEpMeV_detected
-
-            track.energy['depoTotal_no_ncap_depo'] += edep
-            track.energy['depoTotal_charge_no_ncap_depo'] += Qdep
-            if Qdep > 0.075: track.energy['depoTotal_charge_th_75keV_no_ncap_depo'] += Qdep
-            if Qdep > 0.5: track.energy['depoTotal_charge_th_500keV_no_ncap_depo'] += Qdep
 
         # E_tot = np.sum([depo.GetEnergyDeposit() for depo in self.depos])
         # print('total deposit energy: ', E_tot)
@@ -471,6 +436,7 @@ class Event:
             pdg = particle.GetPDGCode()
             depoE = self.GetEnergyDepoWithDesendents(trkId)
             depoE_no_ncap_depo = self.GetEnergyDepoWithDesendentsExcludeNCapEDepo(trkId)
+            depoE_in30cmnuvtx = self.GetEnergyDepoWithDesendentsWithin30cmNuVtx(trkId)
             track = self.tracks[trkId]
             # if longer than 2cm, assume can reconstruct dE
             if track.length['selfDepo'] > 2:
@@ -483,23 +449,18 @@ class Event:
             depoQ        = self.GetChargeDepoWithDesendents(trkId)[0]
             depoQ_75keV  = self.GetChargeDepoWithDesendents(trkId)[1]
             depoQ_500keV = self.GetChargeDepoWithDesendents(trkId)[2]
-            depoQ_MBox        = self.GetChargeMBoxDepoWithDesendents(trkId)[0]
-            depoQ_MBox_75keV  = self.GetChargeMBoxDepoWithDesendents(trkId)[1]
-            depoQ_MBox_500keV = self.GetChargeMBoxDepoWithDesendents(trkId)[2]
             depoQ_no_ncap_depo        = self.GetChargeDepoWithDesendentsExcludeNCapEDepo(trkId)[0]
             depoQ_75keV_no_ncap_depo  = self.GetChargeDepoWithDesendentsExcludeNCapEDepo(trkId)[1]
             depoQ_500keV_no_ncap_depo = self.GetChargeDepoWithDesendentsExcludeNCapEDepo(trkId)[2]
+            depoQ_in30cmnuvtx        = self.GetChargeDepoWithDesendentsWithin30cmNuVtx(trkId)[0]
+            depoQ_75keV_in30cmnuvtx  = self.GetChargeDepoWithDesendentsWithin30cmNuVtx(trkId)[1]
+            depoQ_500keV_in30cmnuvtx = self.GetChargeDepoWithDesendentsWithin30cmNuVtx(trkId)[2]
 
             depoL_220PEpMeV = self.GetLightDepoWithDesendents(trkId)[0]
             depoL_180PEpMeV = self.GetLightDepoWithDesendents(trkId)[1]
             depoL_140PEpMeV = self.GetLightDepoWithDesendents(trkId)[2]
             depoL_100PEpMeV = self.GetLightDepoWithDesendents(trkId)[3]
             depoL_35PEpMeV  = self.GetLightDepoWithDesendents(trkId)[4]
-            depoL_MBox_220PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[0]
-            depoL_MBox_180PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[1]
-            depoL_MBox_140PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[2]
-            depoL_MBox_100PEpMeV = self.GetLightMBoxDepoWithDesendents(trkId)[3]
-            depoL_MBox_35PEpMeV  = self.GetLightMBoxDepoWithDesendents(trkId)[4]
             depoL_220PEpMeV_exclude_ncap_depo = self.GetLightDepoWithDesendentsExcludeNCapEDepo(trkId)[0]
             depoL_180PEpMeV_exclude_ncap_depo = self.GetLightDepoWithDesendentsExcludeNCapEDepo(trkId)[1]
             depoL_140PEpMeV_exclude_ncap_depo = self.GetLightDepoWithDesendentsExcludeNCapEDepo(trkId)[2]
@@ -512,27 +473,23 @@ class Event:
             self.info['E_depoTotal'] += depoE
             self.info['E_depoTotal_track'] += depoE_track
             self.info['E_depoTotal_no_ncap_depo'] += depoE_no_ncap_depo
+            self.info['E_depoTotal_in30cmnuvtx'] += depoE_in30cmnuvtx
             self.info['Q_depoTotal'] += depoQ
             self.info['Q_depoTotal_th_75keV'] += depoQ_75keV
             self.info['Q_depoTotal_th_500keV'] += depoQ_500keV
             self.info['Q_depoTotal_dots_th_75keV'] += depoQ_dots
-            self.info['Q_depoTotal_MBox'] += depoQ_MBox
-            self.info['Q_depoTotal_MBox_th_75keV'] += depoQ_MBox_75keV
-            self.info['Q_depoTotal_MBox_th_500keV'] += depoQ_MBox_500keV
             self.info['Q_depoTotal_no_ncap_depo'] += depoQ_no_ncap_depo
             self.info['Q_depoTotal_th_75keV_no_ncap_depo'] += depoQ_75keV_no_ncap_depo
             self.info['Q_depoTotal_th_500keV_no_ncap_depo'] += depoQ_500keV_no_ncap_depo
+            self.info['Q_depoTotal_in30cmnuvtx'] += depoQ_in30cmnuvtx
+            self.info['Q_depoTotal_th_75keV_in30cmnuvtx'] += depoQ_75keV_in30cmnuvtx
+            self.info['Q_depoTotal_th_500keV_in30cmnuvtx'] += depoQ_500keV_in30cmnuvtx
 
             self.info['L_depoTotal_avg_220PEpMeV'] += depoL_220PEpMeV
             self.info['L_depoTotal_avg_180PEpMeV'] += depoL_180PEpMeV
             self.info['L_depoTotal_avg_140PEpMeV'] += depoL_140PEpMeV
             self.info['L_depoTotal_avg_100PEpMeV'] += depoL_100PEpMeV
             self.info['L_depoTotal_avg_35PEpMeV']  += depoL_35PEpMeV
-            self.info['L_depoTotal_MBox_avg_220PEpMeV'] += depoL_MBox_220PEpMeV
-            self.info['L_depoTotal_MBox_avg_180PEpMeV'] += depoL_MBox_180PEpMeV
-            self.info['L_depoTotal_MBox_avg_140PEpMeV'] += depoL_MBox_140PEpMeV
-            self.info['L_depoTotal_MBox_avg_100PEpMeV'] += depoL_MBox_100PEpMeV
-            self.info['L_depoTotal_MBox_avg_35PEpMeV']  += depoL_MBox_35PEpMeV
             self.info['L_depoTotal_avg_220PEpMeV_no_ncap_depo'] += depoL_220PEpMeV_exclude_ncap_depo
             self.info['L_depoTotal_avg_180PEpMeV_no_ncap_depo'] += depoL_180PEpMeV_exclude_ncap_depo
             self.info['L_depoTotal_avg_140PEpMeV_no_ncap_depo'] += depoL_140PEpMeV_exclude_ncap_depo
@@ -545,26 +502,22 @@ class Event:
                 self.info['E_depoList'][0]       += depoE
                 self.info['E_depoList_track'][0] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][0]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][0]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][0]                += depoQ
                 self.info['Q_depoList_th_75keV'][0]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][0]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][0]  += depoQ_dots
-                self.info['Q_depoList_MBox'][0]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][0]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][0] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][0]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][0]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][0]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][0]                += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][0]       += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][0]      += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][0] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][0] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][0] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][0] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][0]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][0] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][0] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][0] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][0] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][0]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][0] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][0] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][0] += depoL_140PEpMeV_exclude_ncap_depo
@@ -577,26 +530,22 @@ class Event:
                 self.info['E_depoList'][1]       += depoE
                 self.info['E_depoList_track'][1] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][1]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][1]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][1]                += depoQ
                 self.info['Q_depoList_th_75keV'][1]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][1]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][1]  += depoQ_dots
-                self.info['Q_depoList_MBox'][1]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][1]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][1] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][1]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][1]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][1]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][1]                += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][1]       += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][1]      += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][1] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][1] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][1] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][1] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][1]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][1] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][1] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][1] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][1] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][1]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][1] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][1] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][1] += depoL_140PEpMeV_exclude_ncap_depo
@@ -609,26 +558,22 @@ class Event:
                 self.info['E_depoList'][2]       += depoE
                 self.info['E_depoList_track'][2] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][2]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][2]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][2]                += depoQ
                 self.info['Q_depoList_th_75keV'][2]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][2]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][2]  += depoQ_dots
-                self.info['Q_depoList_MBox'][2]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][2]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][2] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][2]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][2]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][2]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][2]                 += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][2]        += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][2]       += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][2] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][2] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][2] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][2] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][2]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][2] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][2] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][2] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][2] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][2]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][2] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][2] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][2] += depoL_140PEpMeV_exclude_ncap_depo
@@ -641,26 +586,22 @@ class Event:
                 self.info['E_depoList'][3]       += depoE
                 self.info['E_depoList_track'][3] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][3]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][3]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][3]                += depoQ
                 self.info['Q_depoList_th_75keV'][3]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][3]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][3]  += depoQ_dots
-                self.info['Q_depoList_MBox'][3]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][3]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][3] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][3]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][3]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][3]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][3]                 += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][3]        += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][3]       += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][3] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][3] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][3] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][3] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][3]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][3] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][3] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][3] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][3] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][3]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][3] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][3] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][3] += depoL_140PEpMeV_exclude_ncap_depo
@@ -673,26 +614,22 @@ class Event:
                 self.info['E_depoList'][4]       += depoE
                 self.info['E_depoList_track'][4] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][4]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][4]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][4]                += depoQ
                 self.info['Q_depoList_th_75keV'][4]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][4]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][4]  += depoQ_dots
-                self.info['Q_depoList_MBox'][4]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][4]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][4] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][4]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][4]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][4]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][4]                 += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][4]        += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][4]       += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][4] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][4] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][4] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][4] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][4]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][4] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][4] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][4] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][4] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][4]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][4] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][4] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][4] += depoL_140PEpMeV_exclude_ncap_depo
@@ -705,26 +642,22 @@ class Event:
                 self.info['E_depoList'][5]       += depoE
                 self.info['E_depoList_track'][5] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][5]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][5]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][5]                += depoQ
                 self.info['Q_depoList_th_75keV'][5]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][5]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][5]  += depoQ_dots
-                self.info['Q_depoList_MBox'][5]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][5]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][5] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][5]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][5]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][5]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][5]                 += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][5]        += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][5]       += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][5] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][5] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][5] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][5] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][5] += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][5] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][5] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][5] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][5] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][5]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][5] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][5] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][5] += depoL_140PEpMeV_exclude_ncap_depo
@@ -737,26 +670,22 @@ class Event:
                 self.info['E_depoList'][6]       += depoE
                 self.info['E_depoList_track'][6] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][6]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][6]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][6]                += depoQ
                 self.info['Q_depoList_th_75keV'][6]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][6]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][6]  += depoQ_dots
-                self.info['Q_depoList_MBox'][6]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][6]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][6] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][6]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][6]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][6]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][6]                 += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][6]        += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][6]       += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][6] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][6] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][6] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][6] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][6]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][6] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][6] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][6] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][6] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][6]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][6] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][6] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][6] += depoL_140PEpMeV_exclude_ncap_depo
@@ -769,26 +698,22 @@ class Event:
                 self.info['E_depoList'][7]       += depoE
                 self.info['E_depoList_track'][7] += depoE_track
                 self.info['E_depoList_no_ncap_depo'][7]   += depoE_no_ncap_depo
+                self.info['E_depoList_in30cmnuvtx'][7]    += depoE_in30cmnuvtx
                 self.info['Q_depoList'][7]                += depoQ
                 self.info['Q_depoList_th_75keV'][7]       += depoQ_75keV
                 self.info['Q_depoList_th_500keV'][7]      += depoQ_500keV
                 self.info['Q_depoList_dots_th_75keV'][7]  += depoQ_dots
-                self.info['Q_depoList_MBox'][7]           += depoQ_MBox
-                self.info['Q_depoList_MBox_th_75keV'][7]  += depoQ_MBox_75keV
-                self.info['Q_depoList_MBox_th_500keV'][7] += depoQ_MBox_500keV
                 self.info['Q_depoList_no_ncap_depo'][7]                += depoQ_no_ncap_depo
                 self.info['Q_depoList_th_75keV_no_ncap_depo'][7]       += depoQ_75keV_no_ncap_depo
                 self.info['Q_depoList_th_500keV_no_ncap_depo'][7]      += depoQ_500keV_no_ncap_depo
+                self.info['Q_depoList_in30cmnuvtx'][7]                 += depoQ_in30cmnuvtx
+                self.info['Q_depoList_th_75keV_in30cmnuvtx'][7]        += depoQ_75keV_in30cmnuvtx
+                self.info['Q_depoList_th_500keV_in30cmnuvtx'][7]       += depoQ_500keV_in30cmnuvtx
                 self.info['L_depoList_avg_220PEpMeV'][7] += depoL_220PEpMeV
                 self.info['L_depoList_avg_180PEpMeV'][7] += depoL_180PEpMeV
                 self.info['L_depoList_avg_140PEpMeV'][7] += depoL_140PEpMeV
                 self.info['L_depoList_avg_100PEpMeV'][7] += depoL_100PEpMeV
                 self.info['L_depoList_avg_35PEpMeV'][7]  += depoL_35PEpMeV
-                self.info['L_depoList_MBox_avg_220PEpMeV'][7] += depoL_MBox_220PEpMeV
-                self.info['L_depoList_MBox_avg_180PEpMeV'][7] += depoL_MBox_180PEpMeV
-                self.info['L_depoList_MBox_avg_140PEpMeV'][7] += depoL_MBox_140PEpMeV
-                self.info['L_depoList_MBox_avg_100PEpMeV'][7] += depoL_MBox_100PEpMeV
-                self.info['L_depoList_MBox_avg_35PEpMeV'][7]  += depoL_MBox_35PEpMeV
                 self.info['L_depoList_avg_220PEpMeV_no_ncap_depo'][7] += depoL_220PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_180PEpMeV_no_ncap_depo'][7] += depoL_180PEpMeV_exclude_ncap_depo
                 self.info['L_depoList_avg_140PEpMeV_no_ncap_depo'][7] += depoL_140PEpMeV_exclude_ncap_depo
@@ -906,6 +831,15 @@ class Event:
         return energy
 
     #-------------------------
+    def GetEnergyDepoWithDesendentsWithin30cmNuVtx(self, trkId):
+        track = self.tracks[trkId]
+        energy_edepoin30cm = track.energy['depoTotal_edepoin30cm']
+        children = track.association['children']
+        for childId in children:
+            energy_edepoin30cm += self.GetEnergyDepoWithDesendentsWithin30cmNuVtx(childId)
+        return energy_edepoin30cm
+
+    #-------------------------
     def GetEnergyDepoWithDesendentsExcludeNCapEDepo(self, trkId):
         track = self.tracks[trkId]
         energy_no_ncap_depo = track.energy['depoTotal_no_ncap_depo']
@@ -941,17 +875,17 @@ class Event:
         return [charge_no_ncap_depo, charge_75keV_no_ncap_depo, charge_500keV_no_ncap_depo]
 
     #-------------------------
-    def GetChargeMBoxDepoWithDesendents(self, trkId):
+    def GetChargeDepoWithDesendentsWithin30cmNuVtx(self, trkId):
         track = self.tracks[trkId]
-        charge = track.energy['depoTotal_charge_MBox']
-        charge_75keV = track.energy['depoTotal_charge_MBox_th_75keV']
-        charge_500keV = track.energy['depoTotal_charge_MBox_th_500keV']
+        charge_in30cmnuvtx        = track.energy['depoTotal_charge_edepoin30cm']
+        charge_75keV_in30cmnuvtx  = track.energy['depoTotal_charge_th_75keV_edepoin30cm']
+        charge_500keV_in30cmnuvtx = track.energy['depoTotal_charge_th_500keV_edepoin30cm']
         children = track.association['children']
         for childId in children:
-            charge += self.GetChargeMBoxDepoWithDesendents(childId)[0]
-            charge_75keV += self.GetChargeMBoxDepoWithDesendents(childId)[1]
-            charge_500keV += self.GetChargeMBoxDepoWithDesendents(childId)[2]
-        return [charge, charge_75keV, charge_500keV]
+            charge_in30cmnuvtx        += self.GetChargeDepoWithDesendentsWithin30cmNuVtx(childId)[0]
+            charge_75keV_in30cmnuvtx  += self.GetChargeDepoWithDesendentsWithin30cmNuVtx(childId)[1]
+            charge_500keV_in30cmnuvtx += self.GetChargeDepoWithDesendentsWithin30cmNuVtx(childId)[2]
+        return [charge_in30cmnuvtx, charge_75keV_in30cmnuvtx, charge_500keV_in30cmnuvtx]
 
     #-------------------------
     def GetLightDepoWithDesendents(self, trkId):
@@ -986,23 +920,6 @@ class Event:
             light_avg_100PEpMeV_exclude_ncap_edep += self.GetLightDepoWithDesendentsExcludeNCapEDepo(childId)[3]
             light_avg_35PEpMeV_exclude_ncap_edep  += self.GetLightDepoWithDesendentsExcludeNCapEDepo(childId)[4]
         return [light_avg_220PEpMeV_exclude_ncap_edep, light_avg_180PEpMeV_exclude_ncap_edep, light_avg_140PEpMeV_exclude_ncap_edep, light_avg_100PEpMeV_exclude_ncap_edep, light_avg_35PEpMeV_exclude_ncap_edep]
-
-    #-------------------------
-    def GetLightMBoxDepoWithDesendents(self, trkId):
-        track = self.tracks[trkId]
-        light_avg_220PEpMeV = track.energy['depoTotal_light_avg_220PEpMeV_MBox']
-        light_avg_180PEpMeV = track.energy['depoTotal_light_avg_180PEpMeV_MBox']
-        light_avg_140PEpMeV = track.energy['depoTotal_light_avg_140PEpMeV_MBox']
-        light_avg_100PEpMeV = track.energy['depoTotal_light_avg_100PEpMeV_MBox']
-        light_avg_35PEpMeV  = track.energy['depoTotal_light_avg_35PEpMeV_MBox']
-        children = track.association['children']
-        for childId in children:
-            light_avg_220PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[0]
-            light_avg_180PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[1]
-            light_avg_140PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[2]
-            light_avg_100PEpMeV += self.GetLightMBoxDepoWithDesendents(childId)[3]
-            light_avg_35PEpMeV  += self.GetLightMBoxDepoWithDesendents(childId)[4]
-        return [light_avg_220PEpMeV, light_avg_180PEpMeV, light_avg_140PEpMeV, light_avg_100PEpMeV, light_avg_35PEpMeV]
 
     #-------------------------
     """def GetEnergyDepoWithAncestor(self, acId):
