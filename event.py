@@ -1,3 +1,5 @@
+from xml.sax import parse
+
 import ROOT
 from ROOT import TG4Event, TFile, TChain
 
@@ -44,6 +46,10 @@ class Event:
         self.event = TG4Event()
         self.simTree.SetBranchAddress("Event", self.event)
 
+
+        self.event = TG4Event()
+        self.simTree.SetBranchAddress("Event", self.event)
+
     # ------------------------
     def Jump(self, entryNo):
         if entryNo%100 == 0:
@@ -51,10 +57,16 @@ class Event:
 
         self.currentEntry = entryNo
         self.simTree.GetEntry(entryNo)
-
+         
         self.ReadVertex()
         self.ReadTracks()
         self.ReadEnergyDepo('SimEnergyDeposit')
+        #self.PrintVertex
+        #self.PrintTracksEnergy()
+        #self.PrintTracksEnergy_ignoreneutron
+        #self.selectneutronevent()
+        #self.PrintTracks
+        #self.read_neutron_direction
 
         self.info = {}
         self.info['Event_ID'] = self.currentEntry
@@ -303,6 +315,7 @@ class Event:
         # E_tot = np.sum([depo.GetEnergyDeposit() for depo in self.depos])
         # print('total deposit energy: ', E_tot)
 
+
     # ------------------------
     def ChargeBirksLaw(self, edep, trkLength):
         # PHYS. REV. D 99, 036009 (2019)
@@ -345,13 +358,13 @@ class Event:
         posy = self.vertex.GetPosition().Y()
         posz = self.vertex.GetPosition().Z()
         print(f"vertex @: ({posx}, {posy}, {posz}) [mm]")
-        print(f"reaction: {self.vertex.GetReaction()}")
-        # print(f"interaction #: {self.vertex.GetInteractionNumber()}")
+        #print(f"reaction: {self.vertex.GetReaction()}")
+        print(f"interaction #: {self.vertex.GetInteractionNumber()}")
 
-        # print(f"{self.vertex.Particles.size()} particles at the vertex", )
-        print(f'{"pdg":>8}{"name":>8}{"trkId":>6}{"mass":>10}{"KE":>10}')
-        print(f'{"":>8}{"":>8}{"":>6}{"[MeV]":>10}{"[MeV]":>10}')
-        print('-'*(8+8+6+10+10))
+        print(f"{self.vertex.Particles.size()} particles at the vertex", )
+        #print(f'{"pdg":>8}{"name":>8}{"trkId":>6}{"mass":>10}{"KE":>10}')
+        #print(f'{"":>8}{"":>8}{"":>6}{"[MeV]":>10}{"[MeV]":>10}')
+        #print('-'*(8+8+6+10+10))
         for particle in self.vertex.Particles:
             trkId = particle.GetTrackId()
             # Skip negative trk id: in the case of Marley events,
@@ -360,13 +373,16 @@ class Event:
             if trkId < 0: continue
             pdg = particle.GetPDGCode()
             name = particle.GetName()
+            #mom_direction=particle.GetMomentum.direction()
+            #print("this is momentum direction:",mom_direction)
             mom = particle.GetMomentum()
+            #print("this is momentum direction:",mom)
             mass = mom.M()
             KE = mom.E() - mass
-            print(f'{pdg:>8d}{name:>8s}{trkId:>6d}{mass:>10.2f}{KE:>10.2f}')
+        #print(f'{pdg:>8d}{name:>8s}{trkId:>6d}{mass:>10.2f}{KE:>10.2f}')
         print('-'*(8+8+6+10+10))
 
-        print(f'{self.info}')
+        #print(f'{self.info}')
 
     # ------------------------
     def FillEnergyInfo(self):
@@ -627,9 +643,103 @@ class Event:
         #         self.info['E_depoList'][4] += depoE
         #     else:
         #         self.info['E_depoList'][5] += depoE
+    #this is a primary function i design to find the ancester, but i think there are easier way of doing so
+    def loopover(self,pdg,track):
+        while pdg != 2112:
+            ParentId = track.GetParentId()
+            track = self.tracks[ParentId]
+            pdg = track.GetPDGCode()
+            # Break out of the loop if there is no parent (ParentId == -1)
+            if ParentId == -1:
+                break
+        return pdg,track
+
+    def PrintTracksEnergy(self):
+        # Loop over all tracks
+        switch=0
+        for i in range(self.tracks.size):
+            track = self.tracks[i]
+            pdg_original = track.GetPDGCode()
+            pdg = track.GetPDGCode()  # Get the PDG code of the particle
+            track_energy = track.energy.get('depoTotal', 0)
+            # Trace back to the parent particle until we find a neutron (PDG code 2112)
+            pdg, track = self.loopover(pdg, track)
+            ParentId = track.GetParentId()
+            while pdg == 2112 and ParentId != -1:
+                track = self.tracks[ParentId]
+                pdg = track.GetPDGCode()
+                pdg, track = self.loopover(pdg, track)
+                ParentId = track.GetParentId()
+            if pdg == 2112 and ParentId == -1 :
+                # Instead of printing, store the tuple (or you can use a dict)
+                switch=1
+               # results.append(\n)
+        return switch
+
+    #for now this function is totally useless because we are still wondering if neutron can deposit a lot of energy
+    def PrintTracksEnergy_ignoreneutron(self):
+        results = []  # Initialize an empty list
+        # Loop over all tracks
+        for i in range(self.tracks.size):
+            track = self.tracks[i]
+            pdg_original = track.GetPDGCode()
+            pdg = track.GetPDGCode()  # Get the PDG code of the particle
+            track_energy = track.energy.get('depoTotal', 0)
+            # Trace back to the parent particle until we find a neutron (PDG code 2112)
+            pdg, track = self.loopover(pdg, track)
+            ParentId = track.GetParentId()
+            while pdg == 2112 and ParentId != -1:
+                track = self.tracks[ParentId]
+                pdg = track.GetPDGCode()
+                pdg, track = self.loopover(pdg, track)
+                ParentId = track.GetParentId()
+            if pdg == 2112 and ParentId == -1 and track_energy>0.5 and pdg_original!=2112:
+                # Instead of printing, store the tuple (or you can use a dict)
+                results_new.append(("(ignore neutron the particle is:",pdg_original,"ignore nuetron the energy it deposit is:" ,track_energy))
+               # results.append(\n)
+        print(results_new)
+        return results_new
+    
 
 
-    # ------------------------
+    #select those tracks with neutron as ancester, we can use this function in antinumu samples because we assume hase on 
+    #energy deposit topology we are always able to find those edep which belongs to neutron
+    #
+    def select_the_right_track(self):
+        results = []  # Initialize an empty list
+        # Loop over all tracks
+        right_track=[]
+        for i in range(self.tracks.size):
+            track = self.tracks[i]
+            for point in track.Points:
+                x = point.GetPosition().X()
+                y = point.GetPosition().Y()
+                z = point.GetPosition().Z()
+                t = point.GetPosition().T()
+            pdg_original = track.GetPDGCode()
+            pdg = track.GetPDGCode()  # Get the PDG code of the particle
+            track_energy = track.energy.get('depoTotal', 0)
+            # Trace back to the parent particle until we find a neutron (PDG code 2112)
+            pdg, track = self.loopover(pdg, track)
+            ParentId = track.GetParentId()
+            while pdg == 2112 and ParentId != -1:
+                track = self.tracks[ParentId]
+                pdg = track.GetPDGCode()
+                pdg, track = self.loopover(pdg, track)
+                ParentId = track.GetParentId()
+            if pdg == 2112 and ParentId == -1 and track_energy>0.5:
+                # Instead of printing, store the tuple (or you can use a dict)
+                results.append((pdg_original,x,y,z,t))
+                right_track.append(i)
+               # results.append(\n)
+        print(results)
+       #print(right_track)
+        return right_track
+
+
+
+
+
     def PrintDepo(self, i):
         # print(f"{self.depos.size} depo points stored in total")
         depo = self.depos[i]
@@ -663,10 +773,22 @@ class Event:
 
         #print(f"{point.GetProcess()}, {point.GetSubprocess()}, {x}, {y}, {z}, {t}")
         return t # last point is capture time
+    def reorder_by_time(self,coordinates):
+        """
+        Reorders a list of coordinate sets based on the time (t) component.
+        Each coordinate is expected to be a list or tuple in the form [x, y, z, t].
 
+        Parameters:
+            coordinates (list): A list of coordinate sets.
+
+        Returns:
+            list: A new list sorted by the t value.
+        """
+        # Sort by the time component (assumed to be the 4th element, index 3)
+        return sorted(coordinates, key=lambda point: point[3])
     # ------------------------
     def PrintTracks(self, start=0, stop=-1):
-        # print(f"{self.tracks.size} trajectories stored", )
+        #print(f"{self.tracks.size} trajectories stored", )
 
         #print(f"{'pdg':>8}{'name':>8}{'trkId':>6}{'parId':>6}{'acId':>6}{'KE':>10}{'selfDepo':>10}{'allDepo':>10}")
         #print(f"{'':>8}{'':>8}{'':>6}{'':>6}{'':>6}{'[MeV]':>10}{'[MeV]':>10}{'[MeV]':>10}")
@@ -674,15 +796,43 @@ class Event:
 
         neutrontrkId = -1
         neutronKE = -1
-
-        for track in self.tracks[start:stop]:
+        numbers=self.select_the_right_track()
+        for track in self.tracks[numbers]:
             pdg = track.GetPDGCode()
+            #print("the particle is:",pdg)
             name = track.GetName()
             trkId = track.GetTrackId()
             parId = track.GetParentId()
             mom = track.GetInitialMomentum()
+            # print("the momentum is :",mom)
+            px = track.GetInitialMomentum().X()
+            py = track.GetInitialMomentum().Y()
+            pz = track.GetInitialMomentum().Z()
+            pE = track.GetInitialMomentum().E()
+            pM = track.GetInitialMomentum().M()
+            coordinate=[]
+            for point in track.Points:
+               x = point.GetPosition().X()
+               y = point.GetPosition().Y()
+               z = point.GetPosition().Z()
+               t = point.GetPosition().T()
+            coordinate.append([x, y, z, t])
+        
+            
+            #print("the x,y,z,t coordinate of the track:",x,y,z,t)
+            #print("the 3 momentum are:",px,py,pz,"the energy is:",pE,"the mass is:",pM,)
             mass = mom.M()
             KE = mom.E() - mass
+            #print("the kenitic energy is: ",KE)
+            p_square=(px**2+py**2+pz**2)**0.5
+            direction_vector=[]
+            direction_vector.append(px/p_square)
+            direction_vector.append(py/p_square)
+            direction_vector.append(pz/p_square)
+            #if KE>=2:
+            #    print(direction_vector)
+            #else:
+            #    print("direction undetermined")
             ancestor = track.association['ancestor']
             selfDepo = track.energy['depoTotal']
             allDepo = self.GetEnergyDepoWithDesendents(trkId)
@@ -691,12 +841,189 @@ class Event:
             if pdg == 2112:
                 neutrontrkId = trkId
                 neutronKE = KE
-
+        
         #print('-'*(8+8+6+6+6+10+10+10))
         return [neutrontrkId, neutronKE]
 
 
-    # ------------------------
+
+
+
+    def cos_theta(self):
+        trig = self.selectneutronevent()
+        if trig != 1:
+            return None
+        reconstructed_direction = self.reconstructed_direction()
+        true_direction = self.read_neutron_direction()
+        
+        if (reconstructed_direction is None or true_direction is None or 
+    np.allclose(np.array(reconstructed_direction), [0.0, 0.0, 0.0]) or 
+    np.allclose(np.array(true_direction), [0.0, 0.0, 0.0])):
+
+            print("invalidate direction information")
+            return None
+        cos_between = np.dot(reconstructed_direction, true_direction) 
+        print("cos_theta is: ", cos_between)
+        return cos_between
+
+    def edep_based_information(self)
+        information=[]
+        trig = self.selectneutronevent()
+        mm2cm=0.1
+        if trig == 1:
+            for i in range(self.tracks.size):
+                track_origin = self.tracks[i]
+                track= self.tracks[i]
+                pdg_original = track.GetPDGCode()
+                pdg = track.GetPDGCode()  # Get the PDG code of the particle
+                track_energy = track.energy.get('depoTotal', 0)
+                # Trace back to the parent particle until we find a neutron (PDG code 2112)
+                pdg, track = self.loopover(pdg, track)
+                ParentId = track.GetParentId()
+                while pdg == 2112 and ParentId != -1:
+                    track = self.tracks[ParentId]
+                    pdg = track.GetPDGCode()
+                    pdg, track = self.loopover(pdg, track)
+                    ParentId = track.GetParentId()
+                if pdg == 2112 and ParentId == -1 :
+                    depoList = track_origin.association['depoList']
+                    for di in depoList:
+                        if di < 0 or di >= len(self.depos):
+                            continue  # 防止越界
+
+                        depo = self.depos[di]
+                        x = (depo.GetStart().X() + depo.GetStop().X()) / 2 * mm2cm
+                        y = (depo.GetStart().Y() + depo.GetStop().Y()) / 2 * mm2cm
+                        z = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2cm
+                        t = (depo.GetStart().T() + depo.GetStop().T()) / 2  # ns
+                        edep = depo.GetEnergyDeposit()  # MeV
+        
+   #here we face a problem, in every track there are multiple points, in simulating_direction we just pick up a random one for simulation
+    def reconstructing_direction(self, start=0, stop=-1):
+        coordinate = []
+        trig = self.selectneutronevent()
+        mm2cm=0.1
+        if trig == 1:
+            for i in range(self.tracks.size):
+                track_origin = self.tracks[i]
+                track= self.tracks[i]
+                pdg_original = track.GetPDGCode()
+                pdg = track.GetPDGCode()  # Get the PDG code of the particle
+                track_energy = track.energy.get('depoTotal', 0)
+                # Trace back to the parent particle until we find a neutron (PDG code 2112)
+                pdg, track = self.loopover(pdg, track)
+                ParentId = track.GetParentId()
+                while pdg == 2112 and ParentId != -1:
+                    track = self.tracks[ParentId]
+                    pdg = track.GetPDGCode()
+                    pdg, track = self.loopover(pdg, track)
+                    ParentId = track.GetParentId()
+                if pdg == 2112 and ParentId == -1 :
+                    depoList = track_origin.association['depoList']
+                    for di in depoList:
+                        if di < 0 or di >= len(self.depos):
+                            continue  # 防止越界
+
+                        depo = self.depos[di]
+                        x = (depo.GetStart().X() + depo.GetStop().X()) / 2 * mm2cm
+                        y = (depo.GetStart().Y() + depo.GetStop().Y()) / 2 * mm2cm
+                        z = (depo.GetStart().Z() + depo.GetStop().Z()) / 2 * mm2cm
+                        t = (depo.GetStart().T() + depo.GetStop().T()) / 2  # ns
+                        edep = depo.GetEnergyDeposit()  # MeV
+                        l = depo.GetTrackLength() * mm2cm
+
+                        if edep >= 0.5:
+                            coordinate.append([0.0, x, y, z, t, edep])
+        #print(coordinate)
+        return coordinate
+    def reconstructed_direction(self):
+        """
+        Calculate the reconstructed direction vector based on data from simulating_direction().
+        For each point, multiply the negative direction vector components (pt[1], pt[2], pt[3])
+        by the weight (pt[5]), then sum up all weighted vectors and normalize the result.
+        If the weighted sum has zero magnitude, return None.
+        """
+        data = self.reconstructing_direction()
+        if not data:
+            print("No data from reconstructing_direction(), returning None.")
+            return None
+    
+        weighted_vectors = []
+        for pt in data:
+            try:
+                weight = pt[5]
+            except IndexError:
+                print("Point data does not contain index 5 (weight), returning None.")
+                return None
+            vector = (-pt[1] * weight, -pt[2] * weight, -pt[3] * weight)
+            weighted_vectors.append(vector)
+
+    # Sum the weighted vectors component-wise
+        sum_vector = [sum(vec[i] for vec in weighted_vectors) for i in range(3)]
+        norm = math.sqrt(sum(sum_component ** 2 for sum_component in sum_vector))
+        if norm == 0:
+            print("Weighted vector sum has zero magnitude, skipping this event.")
+            return None
+        unit_vector = [x / norm for x in sum_vector]
+        return unit_vector
+    
+
+        
+    
+    
+    def selectneutronevent(self):
+        trig = 0
+        for i in range(self.tracks.size):
+            track = self.tracks[i]
+            pdg_original = track.GetPDGCode()
+            pdg = track.GetPDGCode()  # Get the PDG code of the particle
+            track_energy = track.energy.get('depoTotal', 0)
+            # Trace back to the parent particle until we find a neutron (PDG code 2112)
+            ParentId = track.GetParentId()
+            if pdg == 2112 and ParentId == -1:
+                trig+=1
+        if trig==1:
+            print("this",self.currentEntry,"th event has one neutron neutrino interaction, it is a good event")
+        elif trig!=0 and trig!=1:
+            print("this",self.currentEntry,"th event has",trig,"neutron neutrino interaction, it is a BAD event")
+        return trig
+
+    # ----------------------
+    def read_neutron_direction(self):
+        direction_vector=[]
+        trig=self.selectneutronevent()
+        if trig!=1:
+            print("this event does not have one neutron neutrino interaction")
+            return
+        else:
+            print("this event has neutron neutrino interaction")
+            i=0
+            track = self.tracks[i]
+            parId = track.GetParentId()
+            pdg_original = track.GetPDGCode()
+            while parId !=-1 or pdg_original != 2112:
+                i+=1
+                track=self.tracks[i]
+                parId = track.GetParentId()
+                pdg_original=track.GetPDGCode()
+        
+            px = track.GetInitialMomentum().X()
+            py = track.GetInitialMomentum().Y()
+            pz = track.GetInitialMomentum().Z()
+            pE = track.GetInitialMomentum().E()
+            pM = track.GetInitialMomentum().M()
+            p_square = (px ** 2 + py ** 2 + pz ** 2) ** 0.5
+            if p_square==0.0:
+                direction_vector = np.array([0.0,0.0,0.0])
+            else:
+                direction_vector.append(px / p_square)
+                direction_vector.append(py / p_square)
+                direction_vector.append(pz / p_square)
+                direction_vector = np.array(direction_vector)
+        #print("the direction of the neutron:",direction_vector) 
+        return direction_vector
+
+
     def Next(self):
         if self.currentEntry != self.nEntry -1:
             self.currentEntry += 1
@@ -810,6 +1137,22 @@ class Event:
     #-----------------------
     def GetFileName(self):
         return self.simTree.GetFile().GetName()
+   
+    def GetDepoInformation_all_events(self):
+        """
+        Returns a list of track lengths (in centimeters) for deposits across all events.
+        Assumes mm2cm is defined (e.g., mm2cm = 0.1).
+        """
+        all_track_lengths = []
+        # Loop over all events
+        for i in range(self.nEntry):
+            self.Jump(i)  # Load event i
+            # Now self.depos contains deposits for the current event
+            for depo in self.depos:
+                trkLength = depo.GetTrackLength() * mm2cm
+                all_track_lengths.append(trkLength)
+        return all_track_lengths
+
 # ------------------------
 if __name__ == "__main__":
     event = Event(sys.argv[1])
