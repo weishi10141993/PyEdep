@@ -1,4 +1,4 @@
-from event import Event
+from event_first import Event
 import sys
 import numpy as np
 from array import array
@@ -221,7 +221,9 @@ class Writer:
 
             self.N_parList[:] = self.event.info['N_parList']
 
-            self.T_out.Fill()
+            self.N_parList[2] = self.event.info['N_parList'][2]
+
+        self.T_out.Fill()
 
         self.T_out.Write()
         # print(self.stat)
