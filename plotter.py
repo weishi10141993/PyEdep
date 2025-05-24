@@ -27,8 +27,19 @@ class Plotter:
         mm2m = 0.001
         mm2cm = 0.1
         for i, track in enumerate(self.event.tracks):
-            depoList = track.association['depoList']
-            ancestor = track.association['ancestor']
+            track_origin = track
+            pdg = track.GetPDGCode()
+            ParentId = track.GetParentId()
+            while pdg != 2112 and ParentId != -1:
+                    track = self.tracks[ParentId]
+                    pdg = track.GetPDGCode()
+                    pdg, track = self.loopover(pdg, track)
+                    ParentId = track.GetParentId()
+            if pdg==2112 and ParentId==-1:
+                depoList = track_origin.association['depoList']
+                ancestor = track_origin.association['ancestor']
+            
+            
             for di in depoList:
                 depo = self.event.depos[di]
                 x = (depo.GetStart().X() + depo.GetStop().X()) / 2 * mm2m
@@ -70,16 +81,18 @@ class Plotter:
         ax1.scatter(mapping[axis[1]], mapping[axis[0]], c=self.cc, s=markerSize)
         if value == 'time':
             # timing plot
+            norm = matplotlib.colors.LogNorm(vmin=1, vmax=vmax)
             plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.tt, cmap=cmap, vmin=1, vmax=vmax, norm=matplotlib.colors.LogNorm(), s=markerSize)
             cb_ax.set_xlabel('ns')
 
         elif value == 'charge':
             # charge plot
+            norm = matplotlib.colors.LogNorm(vmin=1, vmax=vmax)
             if energy == 'GeV':
                 plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
             elif energy == 'MeV':
                 #plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=np.divide(self.ee, self.ll), cmap=cmap, vmax=4, s=markerSize)
-                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=4, s=markerSize)
+                plot_12 = ax2.scatter(mapping[axis[1]], mapping[axis[0]], c=self.ee*2, cmap=cmap, vmax=2.5, s=markerSize)
             cb_ax.set_xlabel('MeV/cm')
 
 
@@ -207,6 +220,20 @@ class Plotter:
                     max_edep_dr = temp_dr
 
         return [max_edep_dr*100, max_edep_dt] #cm, ns
+
+    def evt_containment(self, dQthreshold): # per evt edep max distance from origin
+        nedeps = len(self.tt)
+        edep_max_distance = 0
+        for iedep in range(nedeps):
+            if self.ee[iedep] < dQthreshold:
+                pass
+            else:
+                # unit m
+                temp_edep_max_distance = math.sqrt(self.xx[iedep]*self.xx[iedep] + self.yy[iedep]*self.yy[iedep] + self.zz[iedep]*self.zz[iedep])
+                if temp_edep_max_distance > edep_max_distance:
+                    edep_max_distance = temp_edep_max_distance
+
+        return edep_max_distance #m
 
     #---------------------------------------------
     def DrawROOT(self, dim2d='yz', markerSize=0.2):
